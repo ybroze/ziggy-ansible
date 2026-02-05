@@ -51,7 +51,7 @@
       ansible.builtin.package:
         name: acl
         state: present
-      when: is_linux and not is_macos
+      when: is_linux
 
     - name: Check if running as root
       ansible.builtin.command: id -u
