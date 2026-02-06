@@ -9,15 +9,50 @@
     home: /home/clawdbot
     state: present
 
-- name: Add clawdbot user to sudoers with NOPASSWD
+- name: Add clawdbot user to sudoers with scoped NOPASSWD
   ansible.builtin.copy:
     dest: /etc/sudoers.d/clawdbot
     mode: '0440'
     owner: root
     group: root
     content: |
-      # Allow clawdbot user to run sudo without password
-      clawdbot ALL=(ALL) NOPASSWD: ALL
+      # Clawdbot sudo permissions (scoped for security)
+      #
+      # SECURITY NOTE: These permissions are intentionally limited.
+      # If clawdbot is compromised, attackers can only:
+      # - Manage the clawdbot service
+      # - Run basic tailscale diagnostics
+      # - View clawdbot logs
+      #
+      # To grant full tailscale control (e.g., for self-healing VPN):
+      #   clawdbot ALL=(ALL) NOPASSWD: /usr/bin/tailscale *
+      #
+      # To grant full sudo (NOT RECOMMENDED):
+      #   clawdbot ALL=(ALL) NOPASSWD: ALL
+
+      # Service control - clawdbot service only
+      clawdbot ALL=(ALL) NOPASSWD: /usr/bin/systemctl start clawdbot
+      clawdbot ALL=(ALL) NOPASSWD: /usr/bin/systemctl stop clawdbot
+      clawdbot ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart clawdbot
+      clawdbot ALL=(ALL) NOPASSWD: /usr/bin/systemctl status clawdbot
+      clawdbot ALL=(ALL) NOPASSWD: /usr/bin/systemctl enable clawdbot
+      clawdbot ALL=(ALL) NOPASSWD: /usr/bin/systemctl disable clawdbot
+      # daemon-reload affects all units (required after service file changes)
+      clawdbot ALL=(ALL) NOPASSWD: /usr/bin/systemctl daemon-reload
+
+      # Tailscale - diagnostics + connect/disconnect
+      # NOTE: 'up' allows flags like --advertise-exit-node. For tighter control,
+      # remove 'up' and 'down' lines - operator must then manage VPN manually.
+      clawdbot ALL=(ALL) NOPASSWD: /usr/bin/tailscale status
+      clawdbot ALL=(ALL) NOPASSWD: /usr/bin/tailscale up *
+      clawdbot ALL=(ALL) NOPASSWD: /usr/bin/tailscale down
+      clawdbot ALL=(ALL) NOPASSWD: /usr/bin/tailscale ip *
+      clawdbot ALL=(ALL) NOPASSWD: /usr/bin/tailscale version
+      clawdbot ALL=(ALL) NOPASSWD: /usr/bin/tailscale ping *
+      clawdbot ALL=(ALL) NOPASSWD: /usr/bin/tailscale whois *
+
+      # Journal access - clawdbot logs only
+      clawdbot ALL=(ALL) NOPASSWD: /usr/bin/journalctl -u clawdbot *
     validate: /usr/sbin/visudo -cf %s
 
 - name: Set clawdbot user as primary user for installation
