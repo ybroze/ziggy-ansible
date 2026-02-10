@@ -80,8 +80,8 @@
 
   post_tasks:
     - name: Copy ASCII art script
-      ansible.builtin.copy:
-        src: roles/openclaw/files/show-lobster.sh
+      ansible.builtin.template:
+        src: roles/openclaw/templates/show-lobster.sh.j2
         dest: /tmp/show-lobster.sh
         mode: '0755'
 
@@ -153,18 +153,19 @@
           echo "  • Troubleshoot:     openclaw doctor"
           echo "  • List agents:      openclaw agents list"
           echo ""
-          echo "────────────────────────────────────────────────────────"
+          {% if tailscale_enabled | default(false) %}echo "────────────────────────────────────────────────────────"
           echo "🌐 Connect Tailscale VPN (optional):"
           echo "────────────────────────────────────────────────────────"
           echo ""
           echo "    exit"
           echo "    sudo tailscale up"
           echo ""
-          echo "────────────────────────────────────────────────────────"
+          {% endif %}echo "────────────────────────────────────────────────────────"
           echo ""
           echo "Type 'exit' to return to your previous user"
           echo ""
-          rm -f ~/.openclaw-welcome
+          # Remove welcome message (suppress errors if already deleted)
+          rm -f "$HOME/.openclaw-welcome" 2>/dev/null || true
 
     - name: Add welcome message to .bashrc
       ansible.builtin.lineinfile:
