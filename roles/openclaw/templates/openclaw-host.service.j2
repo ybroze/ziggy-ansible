@@ -1,5 +1,5 @@
 [Unit]
-Description=OpenClaw WhatsApp Gateway
+Description=OpenClaw AI Gateway
 After=network.target docker.service
 Requires=docker.service
 
@@ -13,10 +13,10 @@ WorkingDirectory={{ openclaw_home }}
 Environment="PATH={{ openclaw_home }}/.local/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:/usr/bin:/bin"
 Environment="PNPM_HOME={{ openclaw_home }}/.local/share/pnpm"
 Environment="HOME={{ openclaw_home }}"
-Environment="XDG_RUNTIME_DIR=/run/user/1000"
+Environment="XDG_RUNTIME_DIR=/run/user/{{ openclaw_uid_value | default('1000') }}"
 
 # DBus session bus
-Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus"
+Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/{{ openclaw_uid_value | default('1000') }}/bus"
 
 # Start command
 ExecStart={{ openclaw_home }}/.local/bin/openclaw gateway
@@ -31,6 +31,7 @@ PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=read-only
 ReadWritePaths={{ openclaw_home }}/.openclaw
+ReadWritePaths={{ openclaw_home }}/.local
 
 # Logging
 StandardOutput=journal
