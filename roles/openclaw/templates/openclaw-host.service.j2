@@ -10,16 +10,16 @@ Group={{ openclaw_user }}
 WorkingDirectory={{ openclaw_home }}
 
 # Environment variables
-Environment="PATH={{ openclaw_home }}/.local/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:/usr/bin:/bin"
 Environment="PNPM_HOME={{ openclaw_home }}/.local/share/pnpm"
+Environment="PATH={{ openclaw_home }}/.local/bin:{{ openclaw_home }}/.local/share/pnpm:/usr/local/bin:/usr/bin:/bin"
 Environment="HOME={{ openclaw_home }}"
-Environment="XDG_RUNTIME_DIR=/run/user/{{ openclaw_uid_value | default('1000') }}"
+Environment="XDG_RUNTIME_DIR=/run/user/{{ openclaw_uid_value }}"
 
 # DBus session bus
-Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/{{ openclaw_uid_value | default('1000') }}/bus"
+Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/{{ openclaw_uid_value }}/bus"
 
 # Start command
-ExecStart={{ openclaw_home }}/.local/bin/openclaw gateway
+ExecStart=openclaw gateway
 
 # Restart policy
 Restart=always

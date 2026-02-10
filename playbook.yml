@@ -41,9 +41,8 @@
         update_cache: true
         upgrade: dist
         cache_valid_time: 3600
-      when: is_debian
+      when: is_debian and not ci_test
       register: apt_upgrade_result
-      ignore_errors: true
 
     - name: Display apt upgrade results
       ansible.builtin.debug:
