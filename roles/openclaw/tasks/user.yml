@@ -148,7 +148,7 @@
     mode: '0700'
 
 - name: Add SSH authorized keys for openclaw user
-  ansible.builtin.authorized_key:
+  ansible.posix.authorized_key:
     user: openclaw
     state: present
     key: "{{ item }}"
