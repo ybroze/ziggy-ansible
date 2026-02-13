@@ -141,7 +141,7 @@ SSH is exposed to the internet. Fail2ban automatically bans IPs after 5 failed a
 Security patches should be applied promptly. Automatic security-only updates reduce vulnerability windows.
 
 ### Why Scoped Sudo?
-The clawdbot user only needs to manage its own service and Tailscale. Full root access would be dangerous if the app is compromised.
+The openclaw user only needs to manage its own service and Tailscale. Full root access would be dangerous if the app is compromised.
 
 ### Why Localhost Binding?
 Defense in depth. If DOCKER-USER fails, localhost binding prevents external access.

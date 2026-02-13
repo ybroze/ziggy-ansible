@@ -9,6 +9,40 @@
     home: /home/openclaw
     state: present
 
+- name: Ensure openclaw home directory has correct ownership
+  ansible.builtin.file:
+    path: "{{ openclaw_home }}"
+    owner: "{{ openclaw_user }}"
+    group: "{{ openclaw_user }}"
+    state: directory
+    mode: '0755'
+
+- name: Configure .bashrc for openclaw user
+  ansible.builtin.blockinfile:
+    path: "{{ openclaw_home }}/.bashrc"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - OpenClaw config"
+    block: |
+      # Enable 256 colors
+      export TERM=xterm-256color
+      export COLORTERM=truecolor
+
+      # Add pnpm to PATH
+      export PNPM_HOME="{{ openclaw_home }}/.local/share/pnpm"
+      export PATH="{{ openclaw_home }}/.local/bin:$PNPM_HOME:$PATH"
+
+      # Color support for common tools
+      export CLICOLOR=1
+      export LS_COLORS='di=34:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43'
+
+      # Aliases
+      alias ls='ls --color=auto'
+      alias grep='grep --color=auto'
+      alias ll='ls -lah'
+    create: true
+    owner: "{{ openclaw_user }}"
+    group: "{{ openclaw_user }}"
+    mode: '0644'
+
 - name: Add openclaw user to sudoers with scoped NOPASSWD
   ansible.builtin.copy:
     dest: /etc/sudoers.d/openclaw
@@ -60,22 +94,35 @@
     openclaw_user: openclaw
     openclaw_home: /home/openclaw
 
+- name: Create .bash_profile to source .bashrc for login shells
+  ansible.builtin.copy:
+    dest: "{{ openclaw_home }}/.bash_profile"
+    owner: "{{ openclaw_user }}"
+    group: "{{ openclaw_user }}"
+    mode: '0644'
+    content: |
+      # .bash_profile - Executed for login shells
+      # Source .bashrc to ensure environment is loaded for login shells
+      if [ -f ~/.bashrc ]; then
+          . ~/.bashrc
+      fi
+
 # Fix DBus issues for systemd user services
 - name: Get openclaw user ID
   ansible.builtin.command: id -u openclaw
   register: openclaw_uid
   changed_when: false
-  when: ansible_os_family == 'Debian'
+  when: ansible_os_family == 'Debian' and not ci_test
 
 - name: Display openclaw user ID
   ansible.builtin.debug:
     msg: "OpenClaw user ID: {{ openclaw_uid.stdout }}"
-  when: ansible_os_family == 'Debian'
+  when: ansible_os_family == 'Debian' and not ci_test
 
 - name: Enable lingering for openclaw user (allows systemd user services without login)
   ansible.builtin.command: loginctl enable-linger openclaw
   changed_when: false
-  when: ansible_os_family == 'Debian'
+  when: ansible_os_family == 'Debian' and not ci_test
 
 - name: Create runtime directory for openclaw user
   ansible.builtin.file:
@@ -84,12 +131,12 @@
     owner: openclaw
     group: openclaw
     mode: '0700'
-  when: ansible_os_family == 'Debian'
+  when: ansible_os_family == 'Debian' and not ci_test
 
 - name: Store openclaw UID as fact for later use
   ansible.builtin.set_fact:
     openclaw_uid_value: "{{ openclaw_uid.stdout }}"
-  when: ansible_os_family == 'Debian'
+  when: ansible_os_family == 'Debian' and not ci_test
 
 # SSH key configuration
 - name: Create .ssh directory for openclaw user
@@ -127,7 +174,7 @@
     owner: openclaw
     group: openclaw
     mode: '0644'
-  when: ansible_os_family == 'Debian'
+  when: ansible_os_family == 'Debian' and not ci_test
 
 - name: Set DBUS_SESSION_BUS_ADDRESS in .bashrc for openclaw user
   ansible.builtin.blockinfile:
@@ -144,4 +191,4 @@
     owner: openclaw
     group: openclaw
     mode: '0644'
-  when: ansible_os_family == 'Debian'
+  when: ansible_os_family == 'Debian' and not ci_test
