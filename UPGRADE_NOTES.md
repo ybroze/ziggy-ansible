@@ -19,7 +19,7 @@
 - Runs `pnpm install` and `pnpm build`
 - Symlinks `bin/openclaw.js` to `~/.local/bin/openclaw`
 - Adds aliases: `openclaw-rebuild`, `openclaw-dev`, `openclaw-pull`
-- Sets `CLAWDBOT_DEV_DIR` environment variable
+- Sets `OPENCLAW_DEV_DIR` environment variable
 
 **Usage**:
 ```bash
@@ -87,7 +87,7 @@ ansible-playbook playbook.yml --ask-become-pass \
 - Added Homebrew to PATH
 - Enhanced security with ProtectSystem and ProtectHome
 
-### 8. Clawdbot Installation via pnpm
+### 8. OpenClaw Installation via pnpm
 - **File**: `roles/openclaw/tasks/openclaw.yml`
 - Changed from `pnpm add -g` to `pnpm install -g openclaw@latest`
 - Added verification step

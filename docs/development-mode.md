@@ -184,7 +184,7 @@ The following aliases are added to `.bashrc`:
 Plus an environment variable:
 
 ```bash
-export CLAWDBOT_DEV_DIR="$HOME/code/openclaw"
+export OPENCLAW_DEV_DIR="$HOME/code/openclaw"
 ```
 
 ## Configuration Variables

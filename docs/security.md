@@ -7,7 +7,7 @@ description: Firewall configuration, Docker isolation, and security hardening de
 
 ## Overview
 
-This playbook implements a multi-layer defense strategy to secure Clawdbot installations.
+This playbook implements a multi-layer defense strategy to secure OpenClaw installations.
 
 ## Security Layers
 
