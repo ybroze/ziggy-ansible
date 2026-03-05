@@ -18,8 +18,8 @@
 
     - name: Detect operating system
       ansible.builtin.set_fact:
-        is_linux: "{{ ansible_os_family == 'Debian' }}"
-        is_debian: "{{ ansible_distribution in ['Debian', 'Ubuntu'] }}"
+        is_linux: "{{ ansible_distribution in ['Debian', 'Ubuntu'] }}"
+        is_debian: "{{ ansible_os_family == 'Debian' }}"
 
     - name: Fail on unsupported macOS
       ansible.builtin.fail:
