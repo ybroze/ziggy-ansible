@@ -30,7 +30,7 @@ The underlying project currently requires system-level permissions and configura
 - 🔧 **Auto-configuration**: DBus, systemd, environment setup
 - 📦 **pnpm installation**: Uses `pnpm install -g openclaw@latest`
 
-## Quick Start
+## Quick Start (Standalone / Self-Hosted)
 
 ### Release Mode (Recommended)
 
@@ -50,7 +50,77 @@ git clone https://github.com/openclaw/openclaw-ansible.git
 cd openclaw-ansible
 
 # Install in development mode
-ansible-playbook playbook.yml --ask-become-pass -e openclaw_install_mode=development
+ansible-playbook playbooks/install.yml --ask-become-pass -e openclaw_install_mode=development
+```
+
+## Installation as Ansible Collection
+
+`openclaw.installer` is an Ansible collection and can be installed with the `ansible-galaxy` command:
+
+```bash
+ansible-galaxy collection install git+https://github.com/openclaw/openclaw-ansible.git
+```
+
+Alternatively, add it to the [`requirements.yml` file of your Ansible project](https://docs.ansible.com/ansible/latest/collections_guide/collections_installing.html#install-multiple-collections-with-a-requirements-file) as follows:
+
+```yaml
+collections:
+  - name: https://github.com/openclaw/openclaw-ansible.git
+    type: git
+    version: main
+```
+
+As a version, you can use a branch, a version tag (e.g., `v2.0.0`), or a specific commit hash.
+
+### Usage
+
+First copy the sample inventory to `inventory.yml`.
+
+```bash
+cp inventory-sample.yml inventory.yml
+```
+
+Second edit the inventory file to match your cluster setup. For example:
+
+```yaml
+openclaw_servers:
+  children:
+    server:
+      hosts:
+        192.16.35.11:
+        192.16.35.12:
+```
+
+If needed, you can also edit `vars` section to match your environment.
+
+Start provisioning of the server using one of the following commands. The command to be used depends on whether you installed `openclaw.installer` with `ansible-galaxy` or if you run the playbook from within the cloned git repository:
+
+*Installed with ansible-galaxy*
+
+```bash
+ansible-playbook openclaw.installer.deploy -i inventory.yml
+```
+
+*Running the playbook from inside the repository*
+
+```bash
+ansible-playbook playbooks/deploy.yml -i inventory.yml
+```
+
+Alternatively, to run the playbook from your existing project setup, run the playbook from within your own playbook:
+
+*Installed with ansible-galaxy*
+
+```yaml
+- name: Deploy OpenClaw
+  ansible.builtin.import_playbook: openclaw.installer.deploy
+```
+
+*Running the playbook from inside the repository*
+
+```yaml
+- name: Deploy OpenClaw
+  ansible.builtin.import_playbook: playbooks/deploy.yml
 ```
 
 ## What Gets Installed
@@ -141,9 +211,9 @@ For high-security environments, audit before running:
 ```bash
 git clone https://github.com/openclaw/openclaw-ansible.git
 cd openclaw-ansible
-# Review playbook.yml and roles/
-ansible-playbook playbook.yml --check --diff  # Dry run
-ansible-playbook playbook.yml --ask-become-pass
+# Review playbooks/install.yml and roles/
+ansible-playbook playbooks/install.yml --check --diff  # Dry run
+ansible-playbook playbooks/install.yml --ask-become-pass
 ```
 
 ## Documentation
@@ -198,7 +268,7 @@ Build from source for development:
 ./run-playbook.sh -e openclaw_install_mode=development
 
 # Or directly:
-ansible-playbook playbook.yml --ask-become-pass -e openclaw_install_mode=development
+ansible-playbook playbooks/install.yml --ask-become-pass -e openclaw_install_mode=development
 ```
 
 This will:
@@ -216,7 +286,7 @@ You can override them in three ways:
 ### 1. Via Command Line
 
 ```bash
-ansible-playbook playbook.yml --ask-become-pass \
+ansible-playbook playbooks/install.yml --ask-become-pass \
   -e openclaw_install_mode=development \
   -e "openclaw_ssh_keys=['ssh-ed25519 AAAAC3... user@host']"
 ```
@@ -236,7 +306,7 @@ tailscale_authkey: "tskey-auth-xxxxxxxxxxxxx"
 EOF
 
 # Use it
-ansible-playbook playbook.yml --ask-become-pass -e @vars.yml
+ansible-playbook playbooks/install.yml --ask-become-pass -e @vars.yml
 ```
 
 ### 3. Edit Defaults Directly
@@ -263,14 +333,14 @@ See [`roles/openclaw/defaults/main.yml`](roles/openclaw/defaults/main.yml) for t
 #### SSH Keys for Remote Access
 
 ```bash
-ansible-playbook playbook.yml --ask-become-pass \
+ansible-playbook playbooks/install.yml --ask-become-pass \
   -e "openclaw_ssh_keys=['ssh-ed25519 AAAAC3... user@host']"
 ```
 
 #### Development Mode with Custom Repository
 
 ```bash
-ansible-playbook playbook.yml --ask-become-pass \
+ansible-playbook playbooks/install.yml --ask-become-pass \
   -e openclaw_install_mode=development \
   -e openclaw_repo_url=https://github.com/YOUR_USERNAME/openclaw.git \
   -e openclaw_repo_branch=feature-branch
@@ -279,7 +349,7 @@ ansible-playbook playbook.yml --ask-become-pass \
 #### Tailscale Auto-Connect
 
 ```bash
-ansible-playbook playbook.yml --ask-become-pass \
+ansible-playbook playbooks/install.yml --ask-become-pass \
   -e tailscale_authkey=tskey-auth-xxxxxxxxxxxxx
 ```
 

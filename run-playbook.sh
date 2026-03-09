@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+# Run OpenClaw playbook from local source or installed collection
+
 OPENCLAW_USER="${OPENCLAW_USER:-openclaw}"
 
 # Keep instructions aligned when user overrides openclaw_user via -e.
@@ -32,12 +34,26 @@ extract_openclaw_user_from_args() {
 
 extract_openclaw_user_from_args "$@"
 
+# Determine playbook source
+if [ -f "playbooks/install.yml" ]; then
+    echo "Running from local source..."
+    PLAYBOOK="playbooks/install.yml"
+    export ANSIBLE_ROLES_PATH="${PWD}/roles:${ANSIBLE_ROLES_PATH}"
+elif ansible-galaxy collection list 2>/dev/null | grep -q "openclaw.installer"; then
+    echo "Running from installed collection..."
+    PLAYBOOK="openclaw.installer.install"
+else
+    echo "Error: Collection not installed and not running from source"
+    echo "Install with: ansible-galaxy collection install -r requirements.yml"
+    exit 1
+fi
+
 # Run the Ansible playbook
 if [ "$EUID" -eq 0 ]; then
-    ansible-playbook playbook.yml -e ansible_become=false "$@"
+    ansible-playbook "$PLAYBOOK" -e ansible_become=false "$@"
     PLAYBOOK_EXIT=$?
 else
-    ansible-playbook playbook.yml --ask-become-pass "$@"
+    ansible-playbook "$PLAYBOOK" --ask-become-pass "$@"
     PLAYBOOK_EXIT=$?
 fi
 

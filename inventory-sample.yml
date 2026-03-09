@@ -1,0 +1,24 @@
+# OpenClaw Ansible Inventory Sample
+
+all:
+  children:
+    openclaw_servers:
+      hosts:
+        # Example 1: Simple IP address
+        192.168.1.100:
+
+        # Example 2: Hostname with specific variables
+        my-claw-server:
+          ansible_host: 192.168.1.101
+          ansible_user: admin
+          # Override default variables for this host
+          openclaw_install_mode: release
+
+  # Global variables for all OpenClaw servers
+  vars:
+    # SSH Public Keys for the 'openclaw' user (Optional)
+    # If set, these keys will be added to ~/.ssh/authorized_keys
+    # server_admin_public_key: "ssh-ed25519 AAAAC3Nz..."
+    
+    # Tailscale Auth Key (Optional) - Leave empty to skip auto-connect
+    # tailscale_authkey: "tskey-auth-..."

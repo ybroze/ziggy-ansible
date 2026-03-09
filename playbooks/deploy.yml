@@ -1,0 +1,6 @@
+---
+- name: Deploy OpenClaw to remote servers
+  hosts: openclaw_servers
+  become: true
+  roles:
+    - openclaw.installer.openclaw
