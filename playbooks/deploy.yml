@@ -2,5 +2,21 @@
 - name: Deploy OpenClaw to remote servers
   hosts: openclaw_servers
   become: true
+
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+  pre_tasks:
+    - name: Detect operating system
+      ansible.builtin.set_fact:
+        is_linux: "{{ ansible_os_family == 'Debian' }}"
+        is_debian: "{{ ansible_distribution in ['Debian', 'Ubuntu'] }}"
+
+    - name: Install ACL for privilege escalation
+      ansible.builtin.package:
+        name: acl
+        state: present
+      when: is_linux
+
   roles:
     - openclaw.installer.openclaw
