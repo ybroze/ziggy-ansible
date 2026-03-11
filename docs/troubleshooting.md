@@ -119,10 +119,30 @@ sudo ufw reload
 # Verify
 sudo ufw status verbose
 ```
-
 ## Ansible Playbook Fails
 
-**Collection missing**:
+### Failed to set permissions on temporary files (Become Issue)
+
+**Symptom**: `fatal: [host]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user..."}`
+
+**Cause**: This happens when connecting as an unprivileged user (e.g., `ansible`) and using `become_user` to switch to another unprivileged user (e.g., `openclaw`). Ansible struggles to share temporary module files between them if the filesystem doesn't support POSIX ACLs.
+
+**Solution**:
+Enable **Ansible Pipelining** in your `ansible.cfg`. This executes modules via stdin without creating temporary files.
+
+```ini
+[defaults]
+pipelining = True
+```
+
+Alternatively, if you cannot use pipelining, you can allow world-readable temporary files (less secure):
+```ini
+[defaults]
+allow_world_readable_tmpfiles = True
+```
+
+### Collection missing
+...
 ```bash
 ansible-galaxy collection install -r requirements.yml
 ```

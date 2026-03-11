@@ -30,7 +30,7 @@ The underlying project currently requires system-level permissions and configura
 - 🔧 **Auto-configuration**: DBus, systemd, environment setup
 - 📦 **pnpm installation**: Uses `pnpm install -g openclaw@latest`
 
-## Quick Start
+## Quick Start (Standalone / Self-Hosted)
 
 ### Release Mode (Recommended)
 
@@ -50,7 +50,7 @@ git clone https://github.com/openclaw/openclaw-ansible.git
 cd openclaw-ansible
 
 # Install in development mode
-ansible-playbook playbook.yml --ask-become-pass -e openclaw_install_mode=development
+./run-playbook.sh -e openclaw_install_mode=development
 ```
 
 ## What Gets Installed
@@ -100,6 +100,123 @@ openclaw daemon start
 # Check status
 openclaw status
 openclaw logs
+```
+
+## Manual Installation
+
+### Release Mode (Default)
+
+```bash
+# Install dependencies
+sudo apt update && sudo apt install -y ansible git
+
+# Clone repository
+git clone https://github.com/openclaw/openclaw-ansible.git
+cd openclaw-ansible
+
+# Install Ansible collections
+ansible-galaxy collection install -r requirements.yml
+
+# Run installation
+./run-playbook.sh
+```
+
+### Development Mode
+
+Build from source for development:
+
+```bash
+# Same as above, but with development mode flag
+./run-playbook.sh -e openclaw_install_mode=development
+
+# Or directly:
+ansible-playbook playbook.yml --ask-become-pass -e openclaw_install_mode=development
+```
+
+This will:
+- Clone openclaw repo to `~/code/openclaw`
+- Run `pnpm install` and `pnpm build`
+- Symlink binary to `~/.local/bin/openclaw`
+- Add development aliases to `.bashrc`
+
+## Installation as Ansible Collection
+
+`openclaw.installer` is an Ansible collection and can be installed with the `ansible-galaxy` command:
+
+```bash
+ansible-galaxy collection install git+https://github.com/openclaw/openclaw-ansible.git
+```
+
+Alternatively, add it to the [`requirements.yml` file of your Ansible project](https://docs.ansible.com/ansible/latest/collections_guide/collections_installing.html#install-multiple-collections-with-a-requirements-file) as follows:
+
+```yaml
+collections:
+  - name: https://github.com/openclaw/openclaw-ansible.git
+    type: git
+    version: main
+```
+
+As a version, you can use a branch, a version tag (e.g., `v2.0.0`), or a specific commit hash.
+
+### Usage
+
+First copy the sample inventory to `inventory.yml`.
+
+```bash
+cp inventory-sample.yml inventory.yml
+```
+
+Second edit the inventory file to match your cluster setup. For example:
+
+```yaml
+openclaw_servers:
+  children:
+    server:
+      hosts:
+        192.16.35.11:
+        192.16.35.12:
+```
+
+If needed, you can also edit `vars` section to match your environment.
+
+Start provisioning of the server using one of the following commands. The command to be used depends on whether you installed `openclaw.installer` with `ansible-galaxy` or if you run the playbook from within the cloned git repository:
+
+*Installed with ansible-galaxy*
+
+```bash
+ansible-playbook openclaw.installer.deploy -i inventory.yml
+```
+
+*In your existing playbook*
+
+```yaml
+- name: Deploy OpenClaw
+  hosts: my_servers
+  become: true
+  roles:
+    - openclaw.installer.openclaw
+```
+
+*Running the playbook from inside the repository*
+
+```bash
+ansible-playbook playbooks/deploy.yml -i inventory.yml
+```
+
+Alternatively, to run the playbook from your existing project setup, run the playbook from within your own playbook:
+
+*Installed with ansible-galaxy*
+
+```yaml
+- name: Deploy OpenClaw
+  ansible.builtin.import_playbook: openclaw.installer.deploy
+```
+
+*Running the playbook from inside the repository*
+
+```yaml
+- name: Deploy OpenClaw
+  ansible.builtin.import_playbook: playbooks/deploy.yml
 ```
 
 ## Installation Modes
@@ -160,52 +277,6 @@ ansible-playbook playbook.yml --ask-become-pass
 - Debian 11+ or Ubuntu 20.04+
 - Root/sudo access
 - Internet connection
-
-## What Gets Installed
-
-- Tailscale (mesh VPN)
-- UFW firewall (SSH + Tailscale ports only)
-- Docker CE + Compose V2 (for sandboxes)
-- Node.js 22.x + pnpm
-- OpenClaw on host (not containerized)
-- Systemd service (auto-start)
-
-## Manual Installation
-
-### Release Mode (Default)
-
-```bash
-# Install dependencies
-sudo apt update && sudo apt install -y ansible git
-
-# Clone repository
-git clone https://github.com/openclaw/openclaw-ansible.git
-cd openclaw-ansible
-
-# Install Ansible collections
-ansible-galaxy collection install -r requirements.yml
-
-# Run installation
-./run-playbook.sh
-```
-
-### Development Mode
-
-Build from source for development:
-
-```bash
-# Same as above, but with development mode flag
-./run-playbook.sh -e openclaw_install_mode=development
-
-# Or directly:
-ansible-playbook playbook.yml --ask-become-pass -e openclaw_install_mode=development
-```
-
-This will:
-- Clone openclaw repo to `~/code/openclaw`
-- Run `pnpm install` and `pnpm build`
-- Symlink binary to `~/.local/bin/openclaw`
-- Add development aliases to `.bashrc`
 
 ## Configuration Options
 

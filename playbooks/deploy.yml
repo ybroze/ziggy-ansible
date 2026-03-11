@@ -1,0 +1,39 @@
+---
+- name: Deploy OpenClaw to remote servers
+  hosts: openclaw_servers
+  become: true
+
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+  pre_tasks:
+    - name: Detect operating system
+      ansible.builtin.set_fact:
+        is_linux: "{{ ansible_system == 'Linux' }}"
+        is_debian_family: "{{ ansible_os_family == 'Debian' }}"
+        is_supported_distro: "{{ ansible_distribution in ['Debian', 'Ubuntu'] }}"
+
+    - name: Fail on unsupported non-Linux systems
+      ansible.builtin.fail:
+        msg: >-
+          Unsupported operating system: {{ ansible_system }}.
+          This installer supports Linux only.
+      when: not is_linux
+
+    - name: Fail on unsupported Linux distribution
+      ansible.builtin.fail:
+        msg: >-
+          Unsupported Linux distribution: {{ ansible_distribution }} {{ ansible_distribution_version }}.
+          This installer currently supports Debian and Ubuntu.
+      when:
+        - is_linux
+        - not is_supported_distro
+
+    - name: Install ACL for privilege escalation
+      ansible.builtin.package:
+        name: acl
+        state: present
+      when: is_supported_distro
+
+  roles:
+    - openclaw
