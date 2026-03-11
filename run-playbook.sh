@@ -37,13 +37,15 @@ if [ "$EUID" -eq 0 ]; then
     ansible-playbook playbook.yml -e ansible_become=false "$@"
     PLAYBOOK_EXIT=$?
 else
-	if sudo -n true 2>/dev/null; then
-		ansible-playbook playbook.yml "$@"
-		PLAYBOOK_EXIT=$?
-	else
-		ansible-playbook playbook.yml --ask-become-pass "$@"
-		PLAYBOOK_EXIT=$?
-	fi
+    if sudo -n true 2>/dev/null; then
+        echo "Passwordless sudo detected. Running without become password prompt."
+        ansible-playbook playbook.yml "$@"
+        PLAYBOOK_EXIT=$?
+    else
+        echo "Sudo password required. Prompting for become password."
+        ansible-playbook playbook.yml --ask-become-pass "$@"
+        PLAYBOOK_EXIT=$?
+    fi
 fi
 
 # After playbook completes successfully, show instructions
