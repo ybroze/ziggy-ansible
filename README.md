@@ -101,6 +101,16 @@ Start provisioning of the server using one of the following commands. The comman
 ansible-playbook openclaw.installer.deploy -i inventory.yml
 ```
 
+*In your existing playbook*
+
+```yaml
+- name: Deploy OpenClaw
+  hosts: my_servers
+  become: true
+  roles:
+    - openclaw.installer.openclaw
+```
+
 *Running the playbook from inside the repository*
 
 ```bash
