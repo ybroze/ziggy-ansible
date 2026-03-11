@@ -57,22 +57,20 @@ echo -e "${GREEN}[1/4] Checking prerequisites...${NC}"
 
 # Check if Ansible is installed
 if ! command -v ansible-playbook &> /dev/null; then
-    echo -e "${YELLOW}Ansible not found. Installing...${NC}"
+    echo -e "${YELLOW}Ansible not found. Installing Ansible and git...${NC}"
     $SUDO apt-get update -qq
-    $SUDO apt-get install -y ansible
-    echo -e "${GREEN}✓ Ansible installed${NC}"
+    $SUDO apt-get install -y ansible git
+    echo -e "${GREEN}✓ Ansible and git installed${NC}"
 else
     echo -e "${GREEN}✓ Ansible already installed${NC}"
-fi
-
-# Check if git is installed
-if ! command -v git &> /dev/null; then
-    echo -e "${YELLOW}git not found. Installing...${NC}"
-    $SUDO apt-get update -qq
-    $SUDO apt-get install -y git
-    echo -e "${GREEN}✓ git installed${NC}"
-else
-    echo -e "${GREEN}✓ git already installed${NC}"
+    if ! command -v git &> /dev/null; then
+        echo -e "${YELLOW}git not found. Installing...${NC}"
+        $SUDO apt-get update -qq
+        $SUDO apt-get install -y git
+        echo -e "${GREEN}✓ git installed${NC}"
+    else
+        echo -e "${GREEN}✓ git already installed${NC}"
+    fi
 fi
 
 
