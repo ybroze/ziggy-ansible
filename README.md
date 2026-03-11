@@ -53,6 +53,92 @@ cd openclaw-ansible
 ./run-playbook.sh -e openclaw_install_mode=development
 ```
 
+## What Gets Installed
+
+- Tailscale (mesh VPN)
+- UFW firewall (SSH + Tailscale ports only)
+- Docker CE + Compose V2 (for sandboxes)
+- Node.js 22.x + pnpm
+- OpenClaw on host (not containerized)
+- Systemd service (auto-start)
+
+## Post-Install
+
+After installation completes, switch to the openclaw user:
+
+```bash
+sudo su - openclaw
+```
+
+Then run the quick-start onboarding wizard:
+
+```bash
+openclaw onboard --install-daemon
+```
+
+This will:
+- Guide you through the setup wizard
+- Configure your messaging provider (WhatsApp/Telegram/Signal)
+- Install and start the daemon service
+
+### Alternative Manual Setup
+
+```bash
+# Configure manually
+openclaw configure
+
+# Login to provider
+openclaw providers login
+
+# Test gateway
+openclaw gateway
+
+# Install as daemon
+openclaw daemon install
+openclaw daemon start
+
+# Check status
+openclaw status
+openclaw logs
+```
+
+## Manual Installation
+
+### Release Mode (Default)
+
+```bash
+# Install dependencies
+sudo apt update && sudo apt install -y ansible git
+
+# Clone repository
+git clone https://github.com/openclaw/openclaw-ansible.git
+cd openclaw-ansible
+
+# Install Ansible collections
+ansible-galaxy collection install -r requirements.yml
+
+# Run installation
+./run-playbook.sh
+```
+
+### Development Mode
+
+Build from source for development:
+
+```bash
+# Same as above, but with development mode flag
+./run-playbook.sh -e openclaw_install_mode=development
+
+# Or directly:
+ansible-playbook playbook.yml --ask-become-pass -e openclaw_install_mode=development
+```
+
+This will:
+- Clone openclaw repo to `~/code/openclaw`
+- Run `pnpm install` and `pnpm build`
+- Symlink binary to `~/.local/bin/openclaw`
+- Add development aliases to `.bashrc`
+
 ## Installation as Ansible Collection
 
 `openclaw.installer` is an Ansible collection and can be installed with the `ansible-galaxy` command:
@@ -133,55 +219,6 @@ Alternatively, to run the playbook from your existing project setup, run the pla
   ansible.builtin.import_playbook: playbooks/deploy.yml
 ```
 
-## What Gets Installed
-
-- Tailscale (mesh VPN)
-- UFW firewall (SSH + Tailscale ports only)
-- Docker CE + Compose V2 (for sandboxes)
-- Node.js 22.x + pnpm
-- OpenClaw on host (not containerized)
-- Systemd service (auto-start)
-
-## Post-Install
-
-After installation completes, switch to the openclaw user:
-
-```bash
-sudo su - openclaw
-```
-
-Then run the quick-start onboarding wizard:
-
-```bash
-openclaw onboard --install-daemon
-```
-
-This will:
-- Guide you through the setup wizard
-- Configure your messaging provider (WhatsApp/Telegram/Signal)
-- Install and start the daemon service
-
-### Alternative Manual Setup
-
-```bash
-# Configure manually
-openclaw configure
-
-# Login to provider
-openclaw providers login
-
-# Test gateway
-openclaw gateway
-
-# Install as daemon
-openclaw daemon install
-openclaw daemon start
-
-# Check status
-openclaw status
-openclaw logs
-```
-
 ## Installation Modes
 
 ### Release Mode (Default)
@@ -240,52 +277,6 @@ ansible-playbook playbook.yml --ask-become-pass
 - Debian 11+ or Ubuntu 20.04+
 - Root/sudo access
 - Internet connection
-
-## What Gets Installed
-
-- Tailscale (mesh VPN)
-- UFW firewall (SSH + Tailscale ports only)
-- Docker CE + Compose V2 (for sandboxes)
-- Node.js 22.x + pnpm
-- OpenClaw on host (not containerized)
-- Systemd service (auto-start)
-
-## Manual Installation
-
-### Release Mode (Default)
-
-```bash
-# Install dependencies
-sudo apt update && sudo apt install -y ansible git
-
-# Clone repository
-git clone https://github.com/openclaw/openclaw-ansible.git
-cd openclaw-ansible
-
-# Install Ansible collections
-ansible-galaxy collection install -r requirements.yml
-
-# Run installation
-./run-playbook.sh
-```
-
-### Development Mode
-
-Build from source for development:
-
-```bash
-# Same as above, but with development mode flag
-./run-playbook.sh -e openclaw_install_mode=development
-
-# Or directly:
-ansible-playbook playbook.yml --ask-become-pass -e openclaw_install_mode=development
-```
-
-This will:
-- Clone openclaw repo to `~/code/openclaw`
-- Run `pnpm install` and `pnpm build`
-- Symlink binary to `~/.local/bin/openclaw`
-- Add development aliases to `.bashrc`
 
 ## Configuration Options
 
