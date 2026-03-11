@@ -18,8 +18,16 @@
 
     - name: Detect operating system
       ansible.builtin.set_fact:
-        is_linux: "{{ ansible_distribution in ['Debian', 'Ubuntu'] }}"
-        is_debian: "{{ ansible_os_family == 'Debian' }}"
+        is_linux: "{{ ansible_system == 'Linux' }}"
+        is_debian_family: "{{ ansible_os_family == 'Debian' }}"
+        is_supported_distro: "{{ ansible_distribution in ['Debian', 'Ubuntu'] }}"
+
+    - name: Fail on unsupported non-Linux systems
+      ansible.builtin.fail:
+        msg: >-
+          Unsupported operating system: {{ ansible_system }}.
+          This installer supports Linux only.
+      when: not is_linux
 
     - name: Fail on unsupported macOS
       ansible.builtin.fail:
@@ -29,31 +37,42 @@
           See README.md for details.
       when: ansible_os_family == 'Darwin'
 
+    - name: Fail on unsupported Linux distribution
+      ansible.builtin.fail:
+        msg: >-
+          Unsupported Linux distribution: {{ ansible_distribution }} {{ ansible_distribution_version }}.
+          This installer currently supports Debian and Ubuntu.
+      when:
+        - is_linux
+        - not is_supported_distro
+
     - name: Display detected OS
       ansible.builtin.debug:
         msg: |
           Detected OS: {{ ansible_distribution }} {{ ansible_distribution_version }}
           OS Family: {{ ansible_os_family }}
-          Linux (Debian/Ubuntu): {{ is_debian }}
+          Linux: {{ is_linux }}
+          Debian family: {{ is_debian_family }}
+          Supported distro: {{ is_supported_distro }}
 
     - name: Update apt cache and upgrade all packages (Debian/Ubuntu)
       ansible.builtin.apt:
         update_cache: true
         upgrade: dist
         cache_valid_time: 3600
-      when: is_debian and not ci_test
+      when: is_debian_family and not ci_test
       register: apt_upgrade_result
 
     - name: Display apt upgrade results
       ansible.builtin.debug:
         msg: "✅ System packages updated and upgraded"
-      when: is_debian and apt_upgrade_result.changed
+      when: is_debian_family and apt_upgrade_result.changed
 
     - name: Install ACL for privilege escalation
       ansible.builtin.package:
         name: acl
         state: present
-      when: is_linux
+      when: is_supported_distro
 
     - name: Check if running as root
       ansible.builtin.command: id -u
