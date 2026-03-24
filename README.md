@@ -155,6 +155,65 @@ chown -R openclaw:openclaw /home/openclaw/.local/share/signal-cli
 - **Re-registration is disruptive:** Only do it as a last resort. Back up the data directory instead.
 - **Twilio number portability:** If you ever change Twilio numbers, you must re-register with Signal under the new number. All contacts will see a new identity.
 
+## GitHub Account Setup
+
+The agent has its own GitHub identity for version control, issue filing, and repository management.
+
+### Prerequisites
+
+- A **GitHub account** for the agent (e.g., created via "Sign in with Google" using the agent's Google Workspace email)
+- An **SSH key pair** for git operations
+- A **Personal Access Token (classic)** for API access
+
+### Registration
+
+1. Create a GitHub account at https://github.com/signup (or sign in with Google using the agent's email)
+2. Set profile name and bio via API or browser
+
+### SSH Key
+
+Generate on the VM as the `openclaw` user:
+
+```bash
+ssh-keygen -t ed25519 -C "agent@yourdomain.com" -f ~/.ssh/id_ed25519 -N ""
+```
+
+Add the public key to the GitHub account: **Settings → SSH and GPG keys → New SSH key**
+
+The private key is deployed by Ansible via the `agent_ssh_private_key` and `agent_ssh_public_key` secret variables.
+
+### Personal Access Token (Classic)
+
+Create at https://github.com/settings/tokens → **Generate new token (classic)**
+
+Recommended scopes:
+- `repo` — full repository access
+- `user` — profile read/write (required for avatar, bio updates)
+- `admin:org` — if the agent needs to manage organization settings
+- `admin:public_key` — manage SSH keys via API
+- `admin:repo_hook` — webhook management
+
+The token is deployed by Ansible via the `agent_github_pat` secret variable to `~/.config/ziggy/github-token.txt`.
+
+### Git Configuration
+
+Ansible configures the global git identity:
+
+```
+git config --global user.name "AgentName"
+git config --global user.email "agent@yourdomain.com"
+```
+
+### Secrets
+
+All GitHub credentials are passed via `--extra-vars` at runtime — **never stored in any repository**.
+
+| Variable | Description | Deployed to |
+|----------|-------------|-------------|
+| `agent_github_pat` | Personal Access Token (classic) | `~/.config/ziggy/github-token.txt` |
+| `agent_ssh_private_key` | SSH private key | `~/.ssh/id_ed25519` |
+| `agent_ssh_public_key` | SSH public key | `~/.ssh/id_ed25519.pub` |
+
 ## Pulling Upstream Updates
 
 ```bash
