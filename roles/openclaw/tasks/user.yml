@@ -53,26 +53,15 @@
       # OpenClaw sudo permissions (scoped for security)
       #
       # SECURITY NOTE: These permissions are intentionally limited.
-      # If openclaw is compromised, attackers can only:
-      # - Manage the openclaw service
-      # - Run basic tailscale diagnostics
-      # - View openclaw logs
-      #
-      # To grant full tailscale control (e.g., for self-healing VPN):
-      #   {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/tailscale *
+      # The openclaw-gateway service runs as a user service (systemctl --user)
+      # and does NOT require sudo for start/stop/restart.
+      # Sudo is only granted for diagnostics and system service logs.
       #
       # To grant full sudo (NOT RECOMMENDED):
       #   {{ openclaw_user }} ALL=(ALL) NOPASSWD: ALL
 
-      # Service control - openclaw service only
-      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl start openclaw
-      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl stop openclaw
-      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart openclaw
-      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl status openclaw
-      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl enable openclaw
-      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl disable openclaw
-      # daemon-reload affects all units (required after service file changes)
-      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl daemon-reload
+      # Journal access - openclaw-gateway logs
+      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/journalctl --user-unit openclaw-gateway *
 
       # Tailscale - diagnostics + connect/disconnect
       # NOTE: 'up' allows flags like --advertise-exit-node. For tighter control,
@@ -85,8 +74,9 @@
       {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/tailscale ping *
       {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/tailscale whois *
 
-      # Journal access - openclaw logs only
-      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/journalctl -u openclaw *
+      # Journal access - system journal (for debugging)
+      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/journalctl -u fail2ban *
+      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/journalctl -u caddy *
     validate: /usr/sbin/visudo -cf %s
 
 - name: Set openclaw user as primary user for installation

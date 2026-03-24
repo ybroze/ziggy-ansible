@@ -6,11 +6,13 @@
 
 # Common tasks for all operating systems
 
-- name: Configure git globally
+- name: Configure git globally for openclaw user
   community.general.git_config:
     name: "{{ item.name }}"
     scope: global
     value: "{{ item.value }}"
+  become: true
+  become_user: "{{ openclaw_user }}"
   loop:
     - { name: 'init.defaultBranch', value: 'main' }
     - { name: 'pull.rebase', value: 'false' }

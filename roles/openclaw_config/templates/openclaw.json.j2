@@ -55,7 +55,7 @@
       "enabled": true,
       "dmPolicy": "allowlist",
       "botToken": "{{ telegram_bot_token }}",
-      "allowFrom": {{ telegram_allow_from | default('[REDACTED_TELEGRAM_ID]') }},
+      "allowFrom": {{ telegram_allow_from | to_json }},
       "groupPolicy": "allowlist",
       "streaming": "partial"
     },
