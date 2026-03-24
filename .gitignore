@@ -3,8 +3,7 @@
 *.pyc
 __pycache__/
 
-# Never commit secrets
+# Secrets — only ignore actual secret files, not the example
 vault/
-*secrets*
 *.pem
 *.key
