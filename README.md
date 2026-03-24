@@ -27,22 +27,29 @@ From your laptop:
 git clone git@github.com:ybroze/ziggy-ansible.git
 cd ziggy-ansible
 
-# 2. Set up secrets
-cp vault/secrets.yml.example vault/secrets.yml
-# Edit with your actual values, then encrypt:
-ansible-vault encrypt vault/secrets.yml
+# 2. Create your secrets file (never committed)
+cp secrets.example.yml ~/Secrets/ziggy-ansible-secrets.yml
+# Edit with your actual values
 
 # 3. Run
-ansible-playbook playbooks/ziggy.yml --ask-become-pass --ask-vault-pass
+ansible-playbook playbooks/ziggy.yml \
+  --ask-become-pass \
+  --extra-vars @~/Secrets/ziggy-ansible-secrets.yml
 ```
+
+## Secrets
+
+**No secrets are stored in this repository — not even encrypted.**
+
+All secrets are passed at runtime via `--extra-vars @<path>`. Keep your secrets file in `~/Secrets/` (or wherever you prefer) on your local machine.
+
+See `secrets.example.yml` for the expected variable names and structure.
+
+Future option: integrate with 1Password CLI for secret injection.
 
 ## Inventory
 
 `inventory.yml` targets the Ziggy VM at 34.30.22.217. SSH as `yuri` with sudo.
-
-## Secrets
-
-All secrets live in `vault/secrets.yml` (ansible-vault encrypted, git-ignored). See `vault/secrets.yml.example` for the structure.
 
 ## Signal Account
 

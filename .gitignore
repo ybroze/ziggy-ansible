@@ -1,19 +1,10 @@
+# Upstream
 *.retry
-*.log
-.ansible/
-.vault_pass
+*.pyc
+__pycache__/
 
-# Secrets and credentials
-*.env
-.env*
-secrets.yml
-vault.yml
+# Never commit secrets
+vault/
+*secrets*
 *.pem
 *.key
-id_rsa*
-host_vars/
-group_vars/
-
-# Ziggy additions
-vault/secrets.yml
-*.retry
