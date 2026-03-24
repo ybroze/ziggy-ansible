@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="media/ziggy-avatar.jpg" width="300" alt="Ziggy" />
+  <img src="media/ziggy-avatar/square-500x500.png" width="300" alt="Ziggy" />
 </p>
 
 # Ziggy — Ansible Deployment
