@@ -30,7 +30,6 @@
       Detected OS: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}
       OS Family: {{ ansible_facts['os_family'] }}
       Linux: {{ is_linux }}
-      Debian family: {{ is_debian_family }}
       Supported distro: {{ is_supported_distro }}
 
 - name: Install ACL for privilege escalation

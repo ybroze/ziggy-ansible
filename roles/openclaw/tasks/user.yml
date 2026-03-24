@@ -79,11 +79,6 @@
       {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/journalctl -u caddy *
     validate: /usr/sbin/visudo -cf %s
 
-- name: Set openclaw user as primary user for installation
-  ansible.builtin.set_fact:
-    openclaw_user: "{{ openclaw_user }}"
-    openclaw_home: "{{ openclaw_home }}"
-
 - name: Create .bash_profile to source .bashrc for login shells
   ansible.builtin.copy:
     dest: "{{ openclaw_home }}/.bash_profile"
