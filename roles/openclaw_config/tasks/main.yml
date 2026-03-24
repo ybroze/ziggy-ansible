@@ -9,7 +9,10 @@
     group: "{{ openclaw_user }}"
     mode: '0600'
   no_log: true
-  notify: Restart openclaw
+  notify:
+    - Restart openclaw
+    - Run openclaw doctor
+    - Show doctor output
 
 - name: Ensure agent auth directory exists
   ansible.builtin.file:
@@ -58,6 +61,20 @@
   when: workspace_git.stat.exists
   register: git_pull
   changed_when: "'Already up to date' not in git_pull.stdout"
+
+- name: Run post-provision health check
+  ansible.builtin.command:
+    cmd: openclaw doctor --non-interactive
+  become: true
+  become_user: "{{ openclaw_user }}"
+  changed_when: false
+  register: provision_doctor
+  failed_when: false
+
+- name: Show post-provision doctor output
+  ansible.builtin.debug:
+    var: provision_doctor.stdout_lines
+  when: provision_doctor.stdout_lines is defined
 
 - name: Ensure workspace memory directory exists
   ansible.builtin.file:

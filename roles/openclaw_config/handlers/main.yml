@@ -4,3 +4,17 @@
     name: openclaw
     state: restarted
   when: ansible_facts["service_mgr"] == 'systemd'
+
+- name: Run openclaw doctor
+  ansible.builtin.command:
+    cmd: openclaw doctor --non-interactive
+  become: true
+  become_user: "{{ openclaw_user }}"
+  changed_when: false
+  register: openclaw_doctor_result
+  failed_when: false
+
+- name: Show doctor output
+  ansible.builtin.debug:
+    var: openclaw_doctor_result.stdout_lines
+  when: openclaw_doctor_result.stdout_lines is defined
