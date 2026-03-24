@@ -63,17 +63,6 @@
       # Journal access - openclaw-gateway logs
       {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/journalctl --user-unit openclaw-gateway *
 
-      # Tailscale - diagnostics + connect/disconnect
-      # NOTE: 'up' allows flags like --advertise-exit-node. For tighter control,
-      # remove 'up' and 'down' lines - operator must then manage VPN manually.
-      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/tailscale status
-      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/tailscale up *
-      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/tailscale down
-      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/tailscale ip *
-      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/tailscale version
-      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/tailscale ping *
-      {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/tailscale whois *
-
       # Journal access - system journal (for debugging)
       {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/journalctl -u fail2ban *
       {{ openclaw_user }} ALL=(ALL) NOPASSWD: /usr/bin/journalctl -u caddy *

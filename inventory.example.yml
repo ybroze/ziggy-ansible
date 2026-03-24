@@ -15,9 +15,6 @@ all:
     openclaw_user: openclaw
     openclaw_home: /home/openclaw
     openclaw_install_mode: release
-    tailscale_enabled: false
-    docker_enabled: false
-
     # Extensions
     caddy_domain: "{{ agent_domain | default('') }}"
     signal_cli_version: "0.13.24"

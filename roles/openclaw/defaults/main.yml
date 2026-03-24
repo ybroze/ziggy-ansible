@@ -1,9 +1,6 @@
 ---
 # OpenClaw default variables
 
-# Tailscale settings
-tailscale_enabled: false  # Set to true to install and configure Tailscale
-
 # Node.js version
 nodejs_version: "22.x"
 
@@ -35,9 +32,6 @@ openclaw_repo_dir: "{{ openclaw_code_dir }}/openclaw"
 #     - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx user@host"
 #     - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDxxxxxxxxxxxxxxxxxxxxxxx user@host"
 openclaw_ssh_keys: []
-
-# Docker for agent sandboxing (optional, not needed for single-agent setups)
-docker_enabled: false
 
 # pnpm environment block — referenced as `environment: "{{ openclaw_env }}"` everywhere
 openclaw_env:
