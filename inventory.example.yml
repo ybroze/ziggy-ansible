@@ -13,6 +13,7 @@ all:
     openclaw_home: /home/openclaw
     openclaw_install_mode: release
     tailscale_enabled: false
+    docker_enabled: false
 
     # Ziggy extensions
     caddy_domain: ziggy.broze.net

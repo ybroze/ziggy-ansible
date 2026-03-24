@@ -11,7 +11,7 @@
 
 - name: Include Docker installation tasks
   ansible.builtin.include_tasks: docker-linux.yml
-  when: not ci_test
+  when: docker_enabled | bool and not ci_test
 
 - name: Include firewall configuration tasks
   ansible.builtin.include_tasks: firewall-linux.yml
