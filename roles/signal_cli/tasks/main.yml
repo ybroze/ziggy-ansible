@@ -48,6 +48,18 @@
   ansible.builtin.debug:
     msg: "Installed: {{ signal_cli_installed_version.stdout }}"
 
+- name: Configure Signal read receipts and delivery indicators
+  ansible.builtin.command:
+    cmd: >-
+      signal-cli -a {{ signal_account }}
+      updateConfiguration
+      --read-receipts true
+      --unidentified-delivery-indicators true
+  become: true
+  become_user: "{{ openclaw_user }}"
+  changed_when: false
+  when: signal_account is defined
+
 # NOTE: Signal account registration is stateful and cannot be automated.
 # The signal-cli data directory (~/.local/share/signal-cli) must be
 # backed up and restored manually. Registration involves:
