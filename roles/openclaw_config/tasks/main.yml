@@ -24,8 +24,18 @@
 
 - name: Deploy Anthropic API key
   ansible.builtin.copy:
-    content: '{"anthropic":{"type":"api_key","key":"{{ anthropic_api_key }}"}}'
-    dest: "{{ openclaw_home }}/.openclaw/agents/main/agent/auth.json"
+    content: |
+      {
+        "version": 1,
+        "profiles": {
+          "anthropic:default": {
+            "type": "api_key",
+            "provider": "anthropic",
+            "key": "{{ anthropic_api_key }}"
+          }
+        }
+      }
+    dest: "{{ openclaw_home }}/.openclaw/agents/main/agent/auth-profiles.json"
     owner: "{{ openclaw_user }}"
     group: "{{ openclaw_user }}"
     mode: '0600'
