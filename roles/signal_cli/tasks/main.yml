@@ -12,7 +12,10 @@
 
 - name: Download signal-cli
   ansible.builtin.get_url:
-    url: "https://github.com/AsamK/signal-cli/releases/download/v{{ signal_cli_version }}/signal-cli-{{ signal_cli_version }}.tar.gz"
+    url: >-
+      https://github.com/AsamK/signal-cli/releases/
+      download/v{{ signal_cli_version }}/
+      signal-cli-{{ signal_cli_version }}.tar.gz
     dest: "/tmp/signal-cli-{{ signal_cli_version }}.tar.gz"
     mode: '0644'
   when: not signal_cli_dir.stat.exists

@@ -49,7 +49,9 @@
   ansible.builtin.shell:
     cmd: |
       cd {{ openclaw_home }}/.openclaw/workspace
-      git pull --ff-only origin {{ workspace_git_branch | default('main') }} 2>&1 || echo "pull skipped (local changes)"
+      BRANCH="{{ workspace_git_branch | default('main') }}"
+      git pull --ff-only origin "$BRANCH" 2>&1 \
+        || echo "pull skipped (local changes)"
     executable: /bin/bash
   become: true
   become_user: "{{ openclaw_user }}"

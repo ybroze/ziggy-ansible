@@ -1,7 +1,9 @@
 ---
 - name: Download Google Chrome stable
   ansible.builtin.get_url:
-    url: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+    url: >-
+      https://dl.google.com/linux/direct/
+      google-chrome-stable_current_amd64.deb
     dest: /tmp/google-chrome-stable_current_amd64.deb
     mode: '0644'
 
