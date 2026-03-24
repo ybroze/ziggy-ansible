@@ -238,13 +238,41 @@ See `secrets.example.yml` for all required and optional variables.
 
 ### 4. Run the Playbook
 
+#### Dry Run (Recommended First)
+
+Preview what Ansible *would* change without touching the server:
+
+```bash
+ansible-playbook playbooks/agent.yml -i inventory.yml \
+  --ask-become-pass \
+  --extra-vars @~/Secrets/agent-secrets.yml \
+  --check --diff
+```
+
+`--check` simulates all tasks; `--diff` shows file changes inline. Review the output for anything unexpected before proceeding.
+
+#### Apply for Real
+
 ```bash
 ansible-playbook playbooks/agent.yml -i inventory.yml \
   --ask-become-pass \
   --extra-vars @~/Secrets/agent-secrets.yml
 ```
 
-This takes 5–15 minutes on a fresh VPS.
+This takes 5–15 minutes on a fresh VPS. On an already-provisioned server, most tasks will show "ok" (no change).
+
+#### Run a Single Role
+
+To re-run just one role (e.g., after changing config):
+
+```bash
+ansible-playbook playbooks/agent.yml -i inventory.yml \
+  --ask-become-pass \
+  --extra-vars @~/Secrets/agent-secrets.yml \
+  --tags openclaw_config
+```
+
+> **Note:** Tags require adding `tags:` to roles in `playbooks/agent.yml` (not yet configured).
 
 ### 5. Post-Install: OpenClaw Onboarding
 
