@@ -1,0 +1,66 @@
+---
+# Deploy OpenClaw configuration and pull workspace from git
+
+- name: Deploy openclaw.json
+  ansible.builtin.template:
+    src: openclaw.json.j2
+    dest: "{{ openclaw_home }}/.openclaw/openclaw.json"
+    owner: "{{ openclaw_user }}"
+    group: "{{ openclaw_user }}"
+    mode: '0600'
+  no_log: true
+  notify: Restart openclaw
+
+- name: Ensure agent auth directory exists
+  ansible.builtin.file:
+    path: "{{ openclaw_home }}/.openclaw/agents/main/agent"
+    state: directory
+    owner: "{{ openclaw_user }}"
+    group: "{{ openclaw_user }}"
+    mode: '0700'
+
+- name: Deploy Anthropic API key
+  ansible.builtin.copy:
+    content: '{"anthropic":{"type":"api_key","key":"{{ anthropic_api_key }}"}}'
+    dest: "{{ openclaw_home }}/.openclaw/agents/main/agent/auth.json"
+    owner: "{{ openclaw_user }}"
+    group: "{{ openclaw_user }}"
+    mode: '0600'
+  when: anthropic_api_key is defined
+  no_log: true
+
+- name: Check if workspace is a git repo
+  ansible.builtin.stat:
+    path: "{{ openclaw_home }}/.openclaw/workspace/.git"
+  register: workspace_git
+
+- name: Clone workspace from private repo
+  ansible.builtin.git:
+    repo: "{{ workspace_git_remote }}"
+    dest: "{{ openclaw_home }}/.openclaw/workspace"
+    version: "{{ workspace_git_branch | default('main') }}"
+    accept_hostkey: true
+    key_file: "{{ openclaw_home }}/.ssh/id_ed25519"
+  become: true
+  become_user: "{{ openclaw_user }}"
+  when: not workspace_git.stat.exists
+
+- name: Pull latest workspace changes
+  ansible.builtin.shell:
+    cmd: |
+      cd {{ openclaw_home }}/.openclaw/workspace
+      git pull --ff-only origin {{ workspace_git_branch | default('main') }} 2>&1 || echo "pull skipped (local changes)"
+    executable: /bin/bash
+  become: true
+  become_user: "{{ openclaw_user }}"
+  when: workspace_git.stat.exists
+  register: git_pull
+  changed_when: "'Already up to date' not in git_pull.stdout"
+
+- name: Ensure workspace memory directory exists
+  ansible.builtin.file:
+    path: "{{ openclaw_home }}/.openclaw/workspace/memory"
+    state: directory
+    owner: "{{ openclaw_user }}"
+    group: "{{ openclaw_user }}"
+    mode: '0755'

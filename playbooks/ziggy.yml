@@ -3,7 +3,9 @@
 # Runs the base OpenClaw playbook + Ziggy-specific extensions
 #
 # Usage from your laptop:
-#   ansible-playbook playbooks/ziggy.yml -i inventory.yml --ask-become-pass --ask-vault-pass
+#   ansible-playbook playbooks/ziggy.yml -i inventory.yml \
+#     --ask-become-pass \
+#     --extra-vars @~/Secrets/ziggy-ansible-secrets.yml
 
 - name: Base OpenClaw installation
   hosts: openclaw_servers
@@ -36,3 +38,4 @@
     - caddy
     - signal_cli
     - ziggy_config
+    - openclaw_config

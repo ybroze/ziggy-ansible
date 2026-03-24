@@ -1,0 +1,107 @@
+{
+  "browser": {
+    "enabled": true,
+    "executablePath": "/usr/bin/google-chrome-stable",
+    "headless": true,
+    "noSandbox": true
+  },
+  "auth": {
+    "profiles": {
+      "anthropic:default": {
+        "provider": "anthropic",
+        "mode": "api_key"
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "{{ openclaw_model_primary | default('anthropic/claude-opus-4-6') }}",
+        "fallbacks": [
+          "{{ openclaw_model_fallback | default('anthropic/claude-sonnet-4-6') }}"
+        ]
+      },
+      "workspace": "{{ openclaw_home }}/.openclaw/workspace",
+      "compaction": {
+        "mode": "safeguard"
+      },
+      "heartbeat": {
+        "every": "{{ openclaw_heartbeat_interval | default('5m') }}"
+      },
+      "maxConcurrent": {{ openclaw_max_concurrent | default(4) }},
+      "subagents": {
+        "maxConcurrent": {{ openclaw_subagent_max_concurrent | default(8) }}
+      }
+    }
+  },
+  "tools": {
+    "web": {
+      "search": {
+        "apiKey": "{{ brave_search_api_key }}"
+      }
+    }
+  },
+  "messages": {
+    "ackReactionScope": "group-mentions"
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "dmPolicy": "allowlist",
+      "botToken": "{{ telegram_bot_token }}",
+      "allowFrom": {{ telegram_allow_from | default('[REDACTED_TELEGRAM_ID]') }},
+      "groupPolicy": "allowlist",
+      "streaming": "partial"
+    },
+    "signal": {
+      "enabled": true,
+      "account": "{{ signal_account | default('REDACTED_PHONE_8') }}",
+      "cliPath": "signal-cli",
+      "autoStart": true,
+      "receiveMode": "on-start",
+      "dmPolicy": "allowlist",
+      "allowFrom": {{ signal_allow_from | to_json }},
+      "groupPolicy": "allowlist",
+      "chunkMode": "newline"
+    }
+  },
+  "gateway": {
+    "port": {{ openclaw_port | default(18789) }},
+    "mode": "local",
+    "bind": "loopback",
+    "auth": {
+      "mode": "token",
+      "token": "{{ openclaw_gateway_token }}"
+    },
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    },
+    "nodes": {
+      "denyCommands": [
+        "camera.snap",
+        "camera.clip",
+        "screen.record",
+        "calendar.add",
+        "contacts.add",
+        "reminders.add"
+      ]
+    }
+  },
+  "plugins": {
+    "entries": {
+      "telegram": {
+        "enabled": true
+      },
+      "signal": {
+        "enabled": true
+      }
+    }
+  }
+}
