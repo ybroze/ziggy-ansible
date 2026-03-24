@@ -19,22 +19,22 @@
 
 - name: Deploy SSH key for GitHub (if provided)
   ansible.builtin.copy:
-    content: "{{ ziggy_ssh_private_key }}"
+    content: "{{ agent_ssh_private_key }}"
     dest: "{{ openclaw_home }}/.ssh/id_ed25519"
     owner: "{{ openclaw_user }}"
     group: "{{ openclaw_user }}"
     mode: '0600'
-  when: ziggy_ssh_private_key is defined
+  when: agent_ssh_private_key is defined
   no_log: true
 
 - name: Deploy SSH public key for GitHub (if provided)
   ansible.builtin.copy:
-    content: "{{ ziggy_ssh_public_key }}"
+    content: "{{ agent_ssh_public_key }}"
     dest: "{{ openclaw_home }}/.ssh/id_ed25519.pub"
     owner: "{{ openclaw_user }}"
     group: "{{ openclaw_user }}"
     mode: '0644'
-  when: ziggy_ssh_public_key is defined
+  when: agent_ssh_public_key is defined
 
 - name: Configure SSH for GitHub
   ansible.builtin.copy:
@@ -49,12 +49,12 @@
 
 - name: Deploy GitHub PAT
   ansible.builtin.copy:
-    content: "{{ ziggy_github_pat }}"
+    content: "{{ agent_github_pat }}"
     dest: "{{ openclaw_home }}/.config/ziggy/github-token.txt"
     owner: "{{ openclaw_user }}"
     group: "{{ openclaw_user }}"
     mode: '0600'
-  when: ziggy_github_pat is defined
+  when: agent_github_pat is defined
   no_log: true
 
 - name: Deploy Twilio credentials
@@ -69,22 +69,22 @@
 
 - name: Deploy Google OAuth credentials
   ansible.builtin.copy:
-    content: "{{ ziggy_google_credentials | to_nice_json }}"
+    content: "{{ agent_google_credentials | to_nice_json }}"
     dest: "{{ openclaw_home }}/.config/ziggy/google-credentials.json"
     owner: "{{ openclaw_user }}"
     group: "{{ openclaw_user }}"
     mode: '0600'
-  when: ziggy_google_credentials is defined
+  when: agent_google_credentials is defined
   no_log: true
 
 - name: Deploy Google OAuth tokens
   ansible.builtin.copy:
-    content: "{{ ziggy_google_tokens | to_nice_json }}"
+    content: "{{ agent_google_tokens | to_nice_json }}"
     dest: "{{ openclaw_home }}/.config/ziggy/google-tokens.json"
     owner: "{{ openclaw_user }}"
     group: "{{ openclaw_user }}"
     mode: '0600'
-  when: ziggy_google_tokens is defined
+  when: agent_google_tokens is defined
   no_log: true
 
 - name: Initialize workspace git remote
