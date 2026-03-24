@@ -107,8 +107,8 @@
 - name: Configure git user for openclaw
   ansible.builtin.shell:
     cmd: |
-      git config --global user.name "Ziggy"
-      git config --global user.email "ziggy@broze.net"
+      git config --global user.name "{{ agent_git_name | default("OpenClaw Agent") }}"
+      git config --global user.email "{{ agent_git_email }}"
   become: true
   become_user: "{{ openclaw_user }}"
   changed_when: false

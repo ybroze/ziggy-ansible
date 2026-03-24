@@ -23,6 +23,8 @@ all:
 
     # Workspace git
     workspace_git_remote: "git@github.com:ybroze/ziggy-bot.git"
+    agent_git_name: "YourAgentName"
+    agent_git_email: "agent@yourdomain.com"
 
     # UFW extra ports (beyond base SSH + Tailscale)
     extra_ufw_ports:
