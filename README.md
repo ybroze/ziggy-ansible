@@ -492,6 +492,170 @@ ansible-playbook playbooks/agent.yml -i inventory.yml \
   --extra-vars @~/Secrets/agent-secrets.yml
 ```
 
+## Technical Reference
+
+### Service Architecture
+
+OpenClaw runs as a **user-scoped systemd service** called `openclaw-gateway`:
+
+```
+~/.config/systemd/user/openclaw-gateway.service
+```
+
+It is created by `openclaw onboard --install-daemon` and managed with `systemctl --user` (no sudo required):
+
+```bash
+systemctl --user status openclaw-gateway
+systemctl --user restart openclaw-gateway
+journalctl --user-unit openclaw-gateway -f
+```
+
+The service requires `loginctl enable-linger` for the `openclaw` user (handled by Ansible) so it persists without an active login session.
+
+**Key environment variables** the service sets:
+- `OPENCLAW_SYSTEMD_UNIT=openclaw-gateway.service`
+- `OPENCLAW_SERVICE_KIND=gateway`
+- `XDG_RUNTIME_DIR=/run/user/<uid>` (required for user-scoped systemd + D-Bus)
+
+Legacy service names (`clawdbot-gateway`, `moltbot-gateway`) are recognized by OpenClaw for migration but should not be used.
+
+### Auth Format
+
+OpenClaw 2026.3.x uses `auth-profiles.json` (not the older `auth.json`):
+
+```
+~/.openclaw/agents/main/agent/auth-profiles.json
+```
+
+Structure:
+
+```json
+{
+  "version": 1,
+  "profiles": {
+    "anthropic:default": {
+      "type": "api_key",
+      "provider": "anthropic",
+      "key": "sk-ant-..."
+    }
+  }
+}
+```
+
+### signal-cli Daemon
+
+OpenClaw starts signal-cli as an HTTP daemon on `127.0.0.1:8080` (loopback only). Configuration changes must go through the **JSON-RPC endpoint** while the daemon is running — the CLI will hang if it tries to acquire the config file lock:
+
+```bash
+# Correct: JSON-RPC (talks to running daemon)
+curl -s -X POST http://127.0.0.1:8080/api/v1/rpc \
+  -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","method":"updateConfiguration","params":{
+    "account":"+1YOURNUMBER",
+    "readReceipts":true,
+    "unidentifiedDeliveryIndicators":true
+  },"id":1}'
+
+# Wrong: CLI (hangs waiting for lock)
+signal-cli -a +1YOURNUMBER updateConfiguration --read-receipts true
+```
+
+The Ansible `signal_cli` role uses the JSON-RPC approach.
+
+### Signal Read Receipts
+
+Read receipts require **two layers**:
+
+1. **signal-cli protocol level** — `updateConfiguration --read-receipts true` (advertises receipt support)
+2. **OpenClaw config level** — `channels.signal.sendReadReceipts: true` (actually sends receipts when messages are processed)
+
+Both are configured by this playbook.
+
+### Firewall (UFW)
+
+Default policy: deny incoming, allow outgoing. Allowed ports:
+
+| Port | Protocol | Service |
+|------|----------|---------|
+| 22 | TCP | SSH |
+| 80 | TCP | HTTP (Caddy) |
+| 443 | TCP | HTTPS (Caddy) |
+| 41641 | UDP | Tailscale (if enabled) |
+
+The OpenClaw gateway binds to **loopback only** (`127.0.0.1:18789` by default) — it is not exposed to the internet.
+
+### Sudoers
+
+The `openclaw` user has minimal sudo privileges:
+
+- Journal access for system services (fail2ban, caddy)
+- Tailscale diagnostics (status, ip, version, ping, whois)
+- Tailscale connect/disconnect (up, down)
+
+The `openclaw-gateway` service does **not** require sudo — it runs in user space via `systemctl --user`.
+
+### Docker
+
+Docker is **not required** for single-agent personal assistant setups. It's available as an opt-in (`docker_enabled: true`) for:
+
+- Sandboxed `exec` tool isolation (untrusted code execution)
+- Per-agent filesystem isolation (multi-tenant scenarios)
+- Network isolation for sub-agents
+
+Default: `docker_enabled: false`.
+
+### File Layout on the VPS
+
+```
+/home/openclaw/
+├── .openclaw/
+│   ├── openclaw.json                    # Main config
+│   ├── agents/main/agent/
+│   │   └── auth-profiles.json           # API keys
+│   └── workspace/                       # Git-synced workspace
+│       ├── SOUL.md                      # Agent personality
+│       ├── AGENTS.md                    # Operational rules
+│       ├── USER.md                      # Owner info
+│       ├── MEMORY.md                    # Long-term memory
+│       ├── HEARTBEAT.md                 # Periodic tasks
+│       └── memory/                      # Daily logs
+├── .config/
+│   └── ziggy/                           # Agent credentials
+│       ├── github-token.txt
+│       ├── twilio.env
+│       ├── google-credentials.json
+│       └── google-tokens.json
+├── .config/systemd/user/
+│   └── openclaw-gateway.service         # Created by onboarding
+├── .local/share/
+│   ├── pnpm/                            # pnpm global packages
+│   └── signal-cli/                      # Signal account data (BACK THIS UP)
+└── .ssh/
+    ├── id_ed25519                       # GitHub SSH key
+    ├── id_ed25519.pub
+    └── config                           # SSH config (GitHub)
+```
+
+### Health Check
+
+Run `openclaw doctor --non-interactive` to verify the installation. The Ansible playbook runs this automatically after provisioning.
+
+```bash
+sudo -i -u openclaw
+openclaw doctor --non-interactive
+```
+
+### OpenClaw Config Schema
+
+Use `openclaw gateway call config.schema.lookup` to inspect available config options:
+
+```bash
+sudo -i -u openclaw
+openclaw gateway call config.schema.lookup --params '{"path":"channels.signal"}'
+```
+
+This is useful for discovering features before filing issues — they may already exist as config flags.
+
 ## License
 
 Forked from [openclaw-ansible](https://github.com/openclaw/openclaw-ansible). See [LICENSE](LICENSE) for details.
