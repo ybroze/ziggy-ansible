@@ -1,11 +1,14 @@
 ---
+# Copy to inventory.yml and customize for your environment.
+# Host-specific values (IP, SSH user) can be passed via --extra-vars
+# from your secrets file if you prefer not to store them here.
 all:
   children:
     openclaw_servers:
       hosts:
-        ziggy-vm:
-          ansible_host: 34.30.22.217
-          ansible_user: yuri
+        my-agent:
+          ansible_host: "{{ server_ip }}"
+          ansible_user: "{{ server_user | default('root') }}"
           ansible_become: true
   vars:
     # OpenClaw base
@@ -15,18 +18,10 @@ all:
     tailscale_enabled: false
     docker_enabled: false
 
-    # Ziggy extensions
-    caddy_domain: ziggy.broze.net
+    # Extensions
+    caddy_domain: "{{ agent_domain | default('') }}"
     signal_cli_version: "0.13.24"
     java_package: openjdk-21-jre-headless
-    chrome_install: true
 
     # Workspace git
-    workspace_git_remote: "git@github.com:ybroze/ziggy-bot.git"
-    agent_git_name: "YourAgentName"
-    agent_git_email: "agent@yourdomain.com"
-
-    # UFW extra ports (beyond base SSH + Tailscale)
-    extra_ufw_ports:
-      - { port: '80', proto: 'tcp', comment: 'HTTP (Caddy)' }
-      - { port: '443', proto: 'tcp', comment: 'HTTPS (Caddy)' }
+    workspace_git_remote: "{{ workspace_repo }}"
