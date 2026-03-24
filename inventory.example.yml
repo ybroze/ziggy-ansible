@@ -16,7 +16,6 @@ all:
 
     # Ziggy extensions
     caddy_domain: ziggy.broze.net
-    caddy_webroot: /var/www/ziggy.broze.net
     signal_cli_version: "0.13.24"
     java_package: openjdk-21-jre-headless
     chrome_install: true

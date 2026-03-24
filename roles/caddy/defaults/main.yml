@@ -1,0 +1,2 @@
+---
+caddy_webroot: "/var/www/{{ caddy_domain }}"
