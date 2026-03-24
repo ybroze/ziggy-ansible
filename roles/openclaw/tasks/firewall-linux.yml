@@ -140,12 +140,14 @@
       # Block all other forwarded traffic to Docker containers from external interface
       -A DOCKER-USER -i {{ default_interface.stdout }} -j DROP
     create: false
+  when: docker_enabled | bool
 
 - name: Create Docker daemon config directory
   ansible.builtin.file:
     path: /etc/docker
     state: directory
     mode: '0755'
+  when: docker_enabled | bool
 
 - name: Configure Docker daemon to work with UFW
   ansible.builtin.template:
@@ -155,6 +157,7 @@
     group: root
     mode: '0644'
   notify: Restart docker
+  when: docker_enabled | bool
 
 - name: Enable UFW
   community.general.ufw:
