@@ -9,21 +9,21 @@
   pre_tasks:
     - name: Detect operating system
       ansible.builtin.set_fact:
-        is_linux: "{{ ansible_system == 'Linux' }}"
-        is_debian_family: "{{ ansible_os_family == 'Debian' }}"
-        is_supported_distro: "{{ ansible_distribution in ['Debian', 'Ubuntu'] }}"
+        is_linux: "{{ ansible_facts["system"] == 'Linux' }}"
+        is_debian_family: "{{ ansible_facts["os_family"] == 'Debian' }}"
+        is_supported_distro: "{{ ansible_facts["distribution"] in ['Debian', 'Ubuntu'] }}"
 
     - name: Fail on unsupported non-Linux systems
       ansible.builtin.fail:
         msg: >-
-          Unsupported operating system: {{ ansible_system }}.
+          Unsupported operating system: {{ ansible_facts["system"] }}.
           This installer supports Linux only.
       when: not is_linux
 
     - name: Fail on unsupported Linux distribution
       ansible.builtin.fail:
         msg: >-
-          Unsupported Linux distribution: {{ ansible_distribution }} {{ ansible_distribution_version }}.
+          Unsupported Linux distribution: {{ ansible_facts["distribution"] }} {{ ansible_facts["distribution_version"] }}.
           This installer currently supports Debian and Ubuntu.
       when:
         - is_linux

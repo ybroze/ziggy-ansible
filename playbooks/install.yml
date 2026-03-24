@@ -14,18 +14,18 @@
   pre_tasks:
     - name: Enable color terminal for current session
       ansible.builtin.set_fact:
-        ansible_env: "{{ ansible_env | combine({'TERM': 'xterm-256color', 'COLORTERM': 'truecolor'}) }}"
+        ansible_facts['env']: "{{ ansible_facts['env'] | combine({'TERM': 'xterm-256color', 'COLORTERM': 'truecolor'}) }}"
 
     - name: Detect operating system
       ansible.builtin.set_fact:
-        is_linux: "{{ ansible_system == 'Linux' }}"
-        is_debian_family: "{{ ansible_os_family == 'Debian' }}"
-        is_supported_distro: "{{ ansible_distribution in ['Debian', 'Ubuntu'] }}"
+        is_linux: "{{ ansible_facts["system"] == 'Linux' }}"
+        is_debian_family: "{{ ansible_facts["os_family"] == 'Debian' }}"
+        is_supported_distro: "{{ ansible_facts["distribution"] in ['Debian', 'Ubuntu'] }}"
 
     - name: Fail on unsupported non-Linux systems
       ansible.builtin.fail:
         msg: >-
-          Unsupported operating system: {{ ansible_system }}.
+          Unsupported operating system: {{ ansible_facts["system"] }}.
           This installer supports Linux only.
       when: not is_linux
 
@@ -35,12 +35,12 @@
           macOS bare-metal support has been deprecated and disabled.
           Please use a Linux VM or container instead.
           See README.md for details.
-      when: ansible_os_family == 'Darwin'
+      when: ansible_facts["os_family"] == 'Darwin'
 
     - name: Fail on unsupported Linux distribution
       ansible.builtin.fail:
         msg: >-
-          Unsupported Linux distribution: {{ ansible_distribution }} {{ ansible_distribution_version }}.
+          Unsupported Linux distribution: {{ ansible_facts["distribution"] }} {{ ansible_facts["distribution_version"] }}.
           This installer currently supports Debian and Ubuntu.
       when:
         - is_linux
@@ -49,8 +49,8 @@
     - name: Display detected OS
       ansible.builtin.debug:
         msg: |
-          Detected OS: {{ ansible_distribution }} {{ ansible_distribution_version }}
-          OS Family: {{ ansible_os_family }}
+          Detected OS: {{ ansible_facts["distribution"] }} {{ ansible_facts["distribution_version"] }}
+          OS Family: {{ ansible_facts["os_family"] }}
           Linux: {{ is_linux }}
           Debian family: {{ is_debian_family }}
           Supported distro: {{ is_supported_distro }}
