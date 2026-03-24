@@ -3,7 +3,7 @@
 # Runs the base OpenClaw playbook + Ziggy-specific extensions
 #
 # Usage from your laptop:
-#   ansible-playbook playbooks/ziggy.yml -i inventory.yml \
+#   ansible-playbook playbooks/agent.yml -i inventory.yml \
 #     --ask-become-pass \
 #     --extra-vars @~/Secrets/ziggy-ansible-secrets.yml
 

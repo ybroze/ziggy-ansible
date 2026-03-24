@@ -89,7 +89,7 @@ If you want HTTPS for a web presence (privacy policy, terms of service, or futur
    ```
 3. Wait for DNS propagation (usually minutes, up to 48 hours)
 
-If you skip this, remove the `caddy` role from `playbooks/ziggy.yml`.
+If you skip this, remove the `caddy` role from `playbooks/agent.yml`.
 
 ### 3. Ansible on Your Laptop
 
@@ -233,7 +233,7 @@ See `secrets.example.yml` for all required and optional variables.
 ### 4. Run the Playbook
 
 ```bash
-ansible-playbook playbooks/ziggy.yml \
+ansible-playbook playbooks/agent.yml \
   --ask-become-pass \
   --extra-vars @~/Secrets/agent-secrets.yml
 ```
@@ -383,7 +383,7 @@ Future option: integrate with 1Password CLI or similar for secret injection.
 
 ### Disabling Optional Roles
 
-Edit `playbooks/ziggy.yml` and remove roles you don't need:
+Edit `playbooks/agent.yml` and remove roles you don't need:
 
 - No web server? Remove `caddy`
 - No browser automation? Remove `chrome`
@@ -454,7 +454,7 @@ openclaw doctor
 Ansible is idempotent — safe to re-run after fixing the issue:
 
 ```bash
-ansible-playbook playbooks/ziggy.yml \
+ansible-playbook playbooks/agent.yml \
   --ask-become-pass \
   --extra-vars @~/Secrets/agent-secrets.yml
 ```
