@@ -1,4 +1,7 @@
-# Upstream
+# Say no to macOS
+*.DS_Store
+
+# Essentials
 *.retry
 *.pyc
 __pycache__/
