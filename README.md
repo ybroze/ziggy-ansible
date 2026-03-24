@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="media/ziggy-avatar.jpg" width="300" alt="Ziggy" />
+</p>
+
 # Ziggy — Ansible Deployment
 
 Ansible playbooks for provisioning Ziggy's VM. Uses [openclaw-ansible](https://github.com/openclaw/openclaw-ansible) as a submodule for the base OpenClaw installation.
