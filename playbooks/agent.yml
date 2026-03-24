@@ -1,22 +1,38 @@
 ---
-# Ziggy VM - Full provisioning
-# Runs the base OpenClaw playbook + Ziggy-specific extensions
+# Ziggy VM — Full provisioning
 #
 # Usage from your laptop:
 #   ansible-playbook playbooks/agent.yml -i inventory.yml \
 #     --ask-become-pass \
 #     --extra-vars @~/Secrets/ziggy-ansible-secrets.yml
 
-- name: Base OpenClaw installation
-  ansible.builtin.import_playbook: deploy.yml
-
-- name: Ziggy extensions
+- name: Provision Ziggy VM
   hosts: openclaw_servers
   become: true
+
   vars:
     ansible_python_interpreter: /usr/bin/python3
 
+  environment:
+    TERM: xterm-256color
+    COLORTERM: truecolor
+
+  pre_tasks:
+    - name: Update apt cache and upgrade packages
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: dist
+        cache_valid_time: 3600
+      when: not ci_test | default(false)
+
   roles:
+    # Base (local)
+    - common
+
+    # OpenClaw core (from vendor/openclaw-ansible)
+    - openclaw
+
+    # Ziggy-specific extensions
     - chrome
     - caddy
     - signal_cli
