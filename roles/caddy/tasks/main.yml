@@ -1,0 +1,43 @@
+---
+- name: Install Caddy from apt
+  ansible.builtin.apt:
+    name: caddy
+    state: present
+    update_cache: true
+
+- name: Create webroot directory
+  ansible.builtin.file:
+    path: "{{ caddy_webroot }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
+- name: Deploy Caddyfile
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: /etc/caddy/Caddyfile
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload caddy
+
+- name: Allow HTTP through UFW
+  community.general.ufw:
+    rule: allow
+    port: '80'
+    proto: tcp
+    comment: 'HTTP (Caddy)'
+
+- name: Allow HTTPS through UFW
+  community.general.ufw:
+    rule: allow
+    port: '443'
+    proto: tcp
+    comment: 'HTTPS (Caddy)'
+
+- name: Enable and start Caddy
+  ansible.builtin.systemd:
+    name: caddy
+    state: started
+    enabled: true

@@ -1,0 +1,38 @@
+---
+# Ziggy VM - Full provisioning
+# Runs the base OpenClaw playbook + Ziggy-specific extensions
+#
+# Usage from your laptop:
+#   ansible-playbook playbooks/ziggy.yml -i inventory.yml --ask-become-pass --ask-vault-pass
+
+- name: Base OpenClaw installation
+  hosts: openclaw_servers
+  become: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+  pre_tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install ACL for privilege escalation
+      ansible.builtin.package:
+        name: acl
+        state: present
+
+  roles:
+    - openclaw
+
+- name: Ziggy extensions
+  hosts: openclaw_servers
+  become: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+  roles:
+    - chrome
+    - caddy
+    - signal_cli
+    - ziggy_config

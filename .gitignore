@@ -13,3 +13,7 @@ vault.yml
 id_rsa*
 host_vars/
 group_vars/
+
+# Ziggy additions
+vault/secrets.yml
+*.retry

@@ -1,0 +1,56 @@
+---
+- name: Install Java runtime
+  ansible.builtin.apt:
+    name: "{{ java_package }}"
+    state: present
+    update_cache: true
+
+- name: Check if signal-cli is already installed at target version
+  ansible.builtin.stat:
+    path: "/opt/signal-cli-{{ signal_cli_version }}"
+  register: signal_cli_dir
+
+- name: Download signal-cli
+  ansible.builtin.get_url:
+    url: "https://github.com/AsamK/signal-cli/releases/download/v{{ signal_cli_version }}/signal-cli-{{ signal_cli_version }}.tar.gz"
+    dest: "/tmp/signal-cli-{{ signal_cli_version }}.tar.gz"
+    mode: '0644'
+  when: not signal_cli_dir.stat.exists
+
+- name: Extract signal-cli
+  ansible.builtin.unarchive:
+    src: "/tmp/signal-cli-{{ signal_cli_version }}.tar.gz"
+    dest: /opt
+    remote_src: true
+  when: not signal_cli_dir.stat.exists
+
+- name: Create signal-cli symlink
+  ansible.builtin.file:
+    src: "/opt/signal-cli-{{ signal_cli_version }}/bin/signal-cli"
+    dest: /usr/local/bin/signal-cli
+    state: link
+    force: true
+
+- name: Create signal-cli data directory
+  ansible.builtin.file:
+    path: "{{ openclaw_home }}/.local/share/signal-cli"
+    state: directory
+    owner: "{{ openclaw_user }}"
+    group: "{{ openclaw_user }}"
+    mode: '0700'
+
+- name: Verify signal-cli is working
+  ansible.builtin.command: signal-cli --version
+  register: signal_cli_installed_version
+  changed_when: false
+
+- name: Display signal-cli version
+  ansible.builtin.debug:
+    msg: "Installed: {{ signal_cli_installed_version.stdout }}"
+
+# NOTE: Signal account registration is stateful and cannot be automated.
+# The signal-cli data directory (~/.local/share/signal-cli) must be
+# backed up and restored manually. Registration involves:
+# 1. signal-cli -u +NUMBER register (or link)
+# 2. signal-cli -u +NUMBER verify CODE
+# These steps require interactive Twilio/phone access.
