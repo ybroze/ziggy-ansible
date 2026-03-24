@@ -196,6 +196,12 @@ cd ziggy-ansible
 
 ### 2. Configure Inventory
 
+Copy and edit the inventory:
+
+```bash
+cp inventory.example.yml inventory.yml
+```
+
 Edit `inventory.yml` with your VPS details:
 
 ```yaml
@@ -233,7 +239,7 @@ See `secrets.example.yml` for all required and optional variables.
 ### 4. Run the Playbook
 
 ```bash
-ansible-playbook playbooks/agent.yml \
+ansible-playbook playbooks/agent.yml -i inventory.yml \
   --ask-become-pass \
   --extra-vars @~/Secrets/agent-secrets.yml
 ```
@@ -454,7 +460,7 @@ openclaw doctor
 Ansible is idempotent — safe to re-run after fixing the issue:
 
 ```bash
-ansible-playbook playbooks/agent.yml \
+ansible-playbook playbooks/agent.yml -i inventory.yml \
   --ask-become-pass \
   --extra-vars @~/Secrets/agent-secrets.yml
 ```
