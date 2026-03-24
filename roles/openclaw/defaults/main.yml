@@ -8,7 +8,7 @@ tailscale_enabled: false  # Set to true to install and configure Tailscale
 nodejs_version: "22.x"
 
 # OpenClaw settings
-openclaw_port: 3000
+openclaw_port: 18789
 
 # OpenClaw config directory
 openclaw_config_dir: "{{ openclaw_home }}/.openclaw"

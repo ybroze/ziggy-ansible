@@ -62,7 +62,7 @@
   become: true
   become_user: "{{ openclaw_user }}"
   loop:
-    - { name: 'init.defaultBranch', value: 'main' }
+    - { name: 'init.defaultBranch', value: 'master' }
     - { name: 'pull.rebase', value: 'false' }
     - { name: 'core.editor', value: 'vim' }
     - { name: 'color.ui', value: 'auto' }
