@@ -1,10 +1,58 @@
 ---
-# Main system tools orchestration - Linux only
+# System tools installation (Linux/apt-based)
 
-- name: Include Linux system tools installation
-  ansible.builtin.include_tasks: system-tools-linux.yml
+- name: Install essential system tools
+  ansible.builtin.apt:
+    name:
+      # Editors
+      - vim
+      - nano
+      # Version control
+      - git
+      - git-lfs
+      # Network tools
+      - curl
+      - wget
+      - netcat-openbsd
+      - net-tools
+      - dnsutils
+      - iputils-ping
+      - traceroute
+      - tcpdump
+      - nmap
+      - socat
+      - telnet
+      # Debugging tools
+      - strace
+      - lsof
+      - gdb
+      - htop
+      - iotop
+      - iftop
+      - sysstat
+      - procps
+      # System utilities
+      - tmux
+      - tree
+      - jq
+      - unzip
+      - rsync
+      - less
+      # Build essentials for development
+      - build-essential
+      - file
+    state: present
+    update_cache: true
 
-# Common tasks for all operating systems
+- name: Deploy global vim configuration
+  ansible.builtin.template:
+    src: vimrc.j2
+    dest: /etc/vim/vimrc.local
+    owner: root
+    group: root
+    mode: '0644'
+
+# Common tasks
 
 - name: Configure git globally for openclaw user
   community.general.git_config:

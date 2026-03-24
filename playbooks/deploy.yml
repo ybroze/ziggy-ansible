@@ -6,34 +6,6 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
 
-  pre_tasks:
-    - name: Detect operating system
-      ansible.builtin.set_fact:
-        is_linux: "{{ ansible_facts["system"] == 'Linux' }}"
-        is_debian_family: "{{ ansible_facts["os_family"] == 'Debian' }}"
-        is_supported_distro: "{{ ansible_facts["distribution"] in ['Debian', 'Ubuntu'] }}"
-
-    - name: Fail on unsupported non-Linux systems
-      ansible.builtin.fail:
-        msg: >-
-          Unsupported operating system: {{ ansible_facts["system"] }}.
-          This installer supports Linux only.
-      when: not is_linux
-
-    - name: Fail on unsupported Linux distribution
-      ansible.builtin.fail:
-        msg: >-
-          Unsupported Linux distribution: {{ ansible_facts["distribution"] }} {{ ansible_facts["distribution_version"] }}.
-          This installer currently supports Debian and Ubuntu.
-      when:
-        - is_linux
-        - not is_supported_distro
-
-    - name: Install ACL for privilege escalation
-      ansible.builtin.package:
-        name: acl
-        state: present
-      when: is_supported_distro
-
   roles:
+    - common
     - openclaw

@@ -14,10 +14,7 @@
     cmd: openclaw doctor --non-interactive
   become: true
   become_user: "{{ openclaw_user }}"
-  environment:
-    PNPM_HOME: "{{ openclaw_home }}/.local/share/pnpm"
-    PATH: "{{ openclaw_home }}/.local/bin:{{ openclaw_home }}/.local/share/pnpm:/usr/local/bin:/usr/bin:/bin"
-    HOME: "{{ openclaw_home }}"
+  environment: "{{ openclaw_env }}"
   changed_when: false
   register: openclaw_doctor_result
   failed_when: false

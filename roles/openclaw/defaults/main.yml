@@ -43,3 +43,9 @@ openclaw_ssh_keys: []
 
 # Docker for agent sandboxing (optional, not needed for single-agent setups)
 docker_enabled: false
+
+# pnpm environment block — referenced as `environment: "{{ openclaw_env }}"` everywhere
+openclaw_env:
+  PNPM_HOME: "{{ openclaw_home }}/.local/share/pnpm"
+  PATH: "{{ openclaw_home }}/.local/bin:{{ openclaw_home }}/.local/share/pnpm:/usr/local/bin:/usr/bin:/bin"
+  HOME: "{{ openclaw_home }}"

@@ -7,10 +7,7 @@
     executable: /bin/bash
   become: true
   become_user: "{{ openclaw_user }}"
-  environment:
-    PNPM_HOME: "{{ openclaw_home }}/.local/share/pnpm"
-    PATH: "{{ openclaw_home }}/.local/bin:{{ openclaw_home }}/.local/share/pnpm:/usr/local/bin:/usr/bin:/bin"
-    HOME: "{{ openclaw_home }}"
+  environment: "{{ openclaw_env }}"
   register: openclaw_install
   changed_when: "'Already up to date' not in openclaw_install.stdout"
 
@@ -20,10 +17,7 @@
     executable: /bin/bash
   become: true
   become_user: "{{ openclaw_user }}"
-  environment:
-    PNPM_HOME: "{{ openclaw_home }}/.local/share/pnpm"
-    PATH: "{{ openclaw_home }}/.local/bin:{{ openclaw_home }}/.local/share/pnpm:/usr/local/bin:/usr/bin:/bin"
-    HOME: "{{ openclaw_home }}"
+  environment: "{{ openclaw_env }}"
   register: openclaw_version
   changed_when: false
 

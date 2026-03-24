@@ -1,0 +1,48 @@
+---
+# Common OS detection, validation, and base package setup
+# Shared across install.yml, deploy.yml, and agent.yml
+
+- name: Detect operating system
+  ansible.builtin.set_fact:
+    is_linux: "{{ ansible_facts['system'] == 'Linux' }}"
+    is_debian_family: "{{ ansible_facts['os_family'] == 'Debian' }}"
+    is_supported_distro: "{{ ansible_facts['distribution'] in ['Debian', 'Ubuntu'] }}"
+
+- name: Fail on unsupported non-Linux systems
+  ansible.builtin.fail:
+    msg: >-
+      Unsupported operating system: {{ ansible_facts['system'] }}.
+      This installer supports Linux only.
+  when: not is_linux
+
+- name: Fail on unsupported macOS
+  ansible.builtin.fail:
+    msg: >-
+      macOS bare-metal support has been deprecated and disabled.
+      Please use a Linux VM or container instead.
+      See README.md for details.
+  when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Fail on unsupported Linux distribution
+  ansible.builtin.fail:
+    msg: >-
+      Unsupported Linux distribution: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}.
+      This installer currently supports Debian and Ubuntu.
+  when:
+    - is_linux
+    - not is_supported_distro
+
+- name: Display detected OS
+  ansible.builtin.debug:
+    msg: |
+      Detected OS: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}
+      OS Family: {{ ansible_facts['os_family'] }}
+      Linux: {{ is_linux }}
+      Debian family: {{ is_debian_family }}
+      Supported distro: {{ is_supported_distro }}
+
+- name: Install ACL for privilege escalation
+  ansible.builtin.package:
+    name: acl
+    state: present
+  when: is_supported_distro
