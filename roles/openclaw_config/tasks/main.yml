@@ -56,21 +56,29 @@
   become_user: "{{ openclaw_user }}"
   when: not workspace_git.stat.exists
 
-- name: Stash local workspace changes before pull
+- name: Commit and push local workspace changes
   ansible.builtin.shell:
     cmd: |
       cd {{ openclaw_home }}/.openclaw/workspace
-      if [ -n "$(git status --porcelain)" ]; then
-        git stash --include-untracked
-        echo "stashed"
-      else
+      if [ -z "$(git status --porcelain)" ]; then
         echo "clean"
+        exit 0
+      fi
+      git add -A
+      git commit -m "auto-commit: pre-provision snapshot"
+      if git remote get-url origin >/dev/null 2>&1; then
+        git push
+        echo "pushed"
+      else
+        echo "committed"
       fi
     executable: /bin/bash
   become: true
   become_user: "{{ openclaw_user }}"
-  register: workspace_stash
-  changed_when: "'stashed' in workspace_stash.stdout"
+  environment:
+    GIT_SSH_COMMAND: "ssh -i {{ openclaw_home }}/.ssh/id_ed25519 -o StrictHostKeyChecking=accept-new"
+  register: workspace_commit
+  changed_when: "'pushed' in workspace_commit.stdout or 'committed' in workspace_commit.stdout"
   when: workspace_git.stat.exists
 
 - name: Pull latest workspace changes
@@ -84,20 +92,6 @@
   become: true
   become_user: "{{ openclaw_user }}"
   when: workspace_git.stat.exists
-
-- name: Pop stashed workspace changes
-  ansible.builtin.shell:
-    cmd: |
-      cd {{ openclaw_home }}/.openclaw/workspace
-      git stash pop || true
-    executable: /bin/bash
-  become: true
-  become_user: "{{ openclaw_user }}"
-  changed_when: false
-  when:
-    - workspace_git.stat.exists
-    - workspace_stash.stdout is defined
-    - "'stashed' in workspace_stash.stdout"
 
 - name: Run post-provision health check
   ansible.builtin.command:
