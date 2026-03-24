@@ -1,9 +1,11 @@
 ---
 - name: Restart openclaw
   ansible.builtin.systemd:
-    name: openclaw
+    name: openclaw-gateway
+    scope: user
     state: restarted
-  when: ansible_facts["service_mgr"] == 'systemd'
+  become: true
+  become_user: "{{ openclaw_user }}"
 
 - name: Run openclaw doctor
   ansible.builtin.command:
