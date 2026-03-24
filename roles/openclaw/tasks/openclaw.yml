@@ -1,11 +1,4 @@
 ---
-- name: Validate openclaw_install_mode
-  ansible.builtin.assert:
-    that:
-      - openclaw_install_mode in ["release", "development"]
-    fail_msg: "Invalid openclaw_install_mode: '{{ openclaw_install_mode }}'. Must be 'release' or 'development'."
-    success_msg: "Valid install mode: {{ openclaw_install_mode }}"
-
 - name: Ensure openclaw home directory exists with correct ownership
   ansible.builtin.file:
     path: "{{ openclaw_home }}"
@@ -66,35 +59,5 @@
   changed_when: pnpm_config_result.rc == 1
   failed_when: pnpm_config_result.rc > 1
 
-- name: Display installation mode
-  ansible.builtin.debug:
-    msg: "Installation mode: {{ openclaw_install_mode }}"
-
-# Include appropriate installation method based on mode
 - name: Include release installation (pnpm install -g)
   ansible.builtin.include_tasks: openclaw-release.yml
-  when: openclaw_install_mode == "release"
-
-- name: Include development installation (git clone + build + link)
-  ansible.builtin.include_tasks: openclaw-development.yml
-  when: openclaw_install_mode == "development"
-
-# NOTE: pnpm PATH is managed in user.yml (OpenClaw config block). Do not add it here.
-
-# NOTE: We do NOT create config.yml here - openclaw onboard/configure will do that
-# We also do NOT install the systemd service - openclaw onboard --install-daemon will do that
-# The .openclaw directory structure is created above, but config and daemon are user-initiated
-
-- name: Display configuration note
-  ansible.builtin.debug:
-    msg: |
-      OpenClaw is installed but NOT configured yet.
-
-      Next steps (run as openclaw user):
-      1. Switch user: sudo su - {{ openclaw_user }}
-      2. Run onboarding: openclaw onboard --install-daemon
-
-      This will:
-      - Create configuration files (~/.openclaw/openclaw.json)
-      - Guide you through provider setup
-      - Install and start the daemon service automatically

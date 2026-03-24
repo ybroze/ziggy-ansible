@@ -4,55 +4,20 @@
 - name: Install essential system tools
   ansible.builtin.apt:
     name:
-      # Editors
       - vim
-      - nano
-      # Version control
       - git
       - git-lfs
-      # Network tools
       - curl
       - wget
-      - netcat-openbsd
-      - net-tools
-      - dnsutils
-      - iputils-ping
-      - traceroute
-      - tcpdump
-      - nmap
-      - socat
-      - telnet
-      # Debugging tools
-      - strace
-      - lsof
-      - gdb
-      - htop
-      - iotop
-      - iftop
-      - sysstat
-      - procps
-      # System utilities
+      - jq
       - tmux
       - tree
-      - jq
+      - htop
       - unzip
       - rsync
-      - less
-      # Build essentials for development
       - build-essential
-      - file
     state: present
     update_cache: true
-
-- name: Deploy global vim configuration
-  ansible.builtin.template:
-    src: vimrc.j2
-    dest: /etc/vim/vimrc.local
-    owner: root
-    group: root
-    mode: '0644'
-
-# Common tasks
 
 - name: Configure git globally for openclaw user
   community.general.git_config:
@@ -66,10 +31,3 @@
     - { name: 'pull.rebase', value: 'false' }
     - { name: 'core.editor', value: 'vim' }
     - { name: 'color.ui', value: 'auto' }
-    - { name: 'alias.st', value: 'status' }
-    - { name: 'alias.co', value: 'checkout' }
-    - { name: 'alias.br', value: 'branch' }
-    - { name: 'alias.ci', value: 'commit' }
-    - { name: 'alias.unstage', value: 'reset HEAD --' }
-    - { name: 'alias.last', value: 'log -1 HEAD' }
-    - { name: 'alias.lg', value: 'log --oneline --graph --decorate --all' }

@@ -14,7 +14,6 @@ all:
     # OpenClaw base
     openclaw_user: openclaw
     openclaw_home: /home/openclaw
-    openclaw_install_mode: release
     # Extensions
     caddy_domain: "{{ agent_domain | default('') }}"
     signal_cli_version: "0.13.24"
