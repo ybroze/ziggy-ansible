@@ -20,7 +20,6 @@ Forked from [openclaw-ansible](https://github.com/openclaw/openclaw-ansible) wit
 │  ├── signal-cli (E2EE messaging)                     │
 │  ├── Google Chrome (headless browser automation)     │
 │  ├── Caddy (HTTPS reverse proxy / static site)       │
-│  ├── Docker (agent sandbox isolation)                │
 │  ├── UFW + fail2ban (firewall + intrusion prevention)│
 │  └── Workspace (git-synced, your agent's memory)     │
 └─────────────────────────────────────────────────────┘
@@ -34,7 +33,6 @@ The agent communicates via **Signal** (end-to-end encrypted) and optionally **Te
 - Debian/Ubuntu system packages
 - Node.js 22 + pnpm
 - OpenClaw (release mode, systemd service)
-- Docker CE (agent sandbox isolation)
 - UFW firewall + fail2ban
 
 **Extension roles:**
@@ -43,6 +41,7 @@ The agent communicates via **Signal** (end-to-end encrypted) and optionally **Te
 - `signal_cli` — signal-cli + Java runtime (Signal messaging provider)
 - `agent_config` — credentials deployment (GitHub, Google OAuth, Twilio, SSH keys)
 - `openclaw_config` — OpenClaw configuration + workspace clone from git
+
 
 ## Cost Estimate
 
