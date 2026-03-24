@@ -11,8 +11,6 @@
   no_log: true
   notify:
     - Restart openclaw
-    - Run openclaw doctor
-    - Show doctor output
 
 - name: Ensure agent auth directory exists
   ansible.builtin.file:
@@ -59,18 +57,16 @@
   when: not workspace_git.stat.exists
 
 - name: Pull latest workspace changes
-  ansible.builtin.shell:
-    cmd: |
-      cd {{ openclaw_home }}/.openclaw/workspace
-      BRANCH="{{ workspace_git_branch | default('main') }}"
-      git pull --ff-only origin "$BRANCH" 2>&1 \
-        || echo "pull skipped (local changes)"
-    executable: /bin/bash
+  ansible.builtin.git:
+    repo: "{{ workspace_git_remote }}"
+    dest: "{{ openclaw_home }}/.openclaw/workspace"
+    version: "{{ workspace_git_branch | default('main') }}"
+    update: true
+    accept_hostkey: true
+    key_file: "{{ openclaw_home }}/.ssh/id_ed25519"
   become: true
   become_user: "{{ openclaw_user }}"
   when: workspace_git.stat.exists
-  register: git_pull
-  changed_when: "'Already up to date' not in git_pull.stdout"
 
 - name: Run post-provision health check
   ansible.builtin.command:

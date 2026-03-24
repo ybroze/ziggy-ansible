@@ -12,10 +12,6 @@
     COLORTERM: truecolor
 
   pre_tasks:
-    - name: Enable color terminal for current session
-      ansible.builtin.set_fact:
-        ansible_facts['env']: "{{ ansible_facts['env'] | combine({'TERM': 'xterm-256color', 'COLORTERM': 'truecolor'}) }}"
-
     - name: Update apt cache and upgrade all packages (Debian/Ubuntu)
       ansible.builtin.apt:
         update_cache: true
@@ -27,17 +23,7 @@
     - name: Display apt upgrade results
       ansible.builtin.debug:
         msg: "✅ System packages updated and upgraded"
-      when: apt_upgrade_result.changed
-
-    - name: Check if running as root
-      ansible.builtin.command: id -u
-      register: user_id
-      changed_when: false
-      become: false
-
-    - name: Set fact for root user
-      ansible.builtin.set_fact:
-        is_root: "{{ user_id.stdout == '0' }}"
+      when: not ci_test and apt_upgrade_result.changed | default(false)
 
   roles:
     - common

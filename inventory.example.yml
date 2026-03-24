@@ -23,5 +23,5 @@ all:
     signal_cli_version: "0.13.24"
     java_package: openjdk-21-jre-headless
 
-    # Workspace git
-    workspace_git_remote: "{{ workspace_repo }}"
+    # Workspace git — set workspace_git_remote in your secrets file
+    # workspace_git_remote: "git@github.com:you/your-workspace.git"

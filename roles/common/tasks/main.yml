@@ -15,14 +15,6 @@
       This installer supports Linux only.
   when: not is_linux
 
-- name: Fail on unsupported macOS
-  ansible.builtin.fail:
-    msg: >-
-      macOS bare-metal support has been deprecated and disabled.
-      Please use a Linux VM or container instead.
-      See README.md for details.
-  when: ansible_facts['os_family'] == 'Darwin'
-
 - name: Fail on unsupported Linux distribution
   ansible.builtin.fail:
     msg: >-

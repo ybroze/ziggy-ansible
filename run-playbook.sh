@@ -83,7 +83,7 @@ if [ $PLAYBOOK_EXIT -eq 0 ]; then
     echo "login shell (loads .bashrc, sets environment correctly)."
     echo ""
     echo "After switching, you'll see the next setup steps:"
-    echo "  • Configure OpenClaw (~/.openclaw/config.yml)"
+    echo "  • Configure OpenClaw (~/.openclaw/openclaw.json)"
     echo "  • Login to messaging provider (WhatsApp/Telegram/Signal)"
     echo "  • Test the gateway"
     echo ""

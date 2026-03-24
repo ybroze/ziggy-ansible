@@ -1,4 +1,20 @@
 ---
+# NOTE: ansible.builtin.systemd with scope=user requires the loginctl linger
+# to be enabled and XDG_RUNTIME_DIR/DBUS_SESSION_BUS_ADDRESS to be set.
+# When become_user is combined with scope=user, systemd may not find the
+# user bus. The shell workaround below sets these env vars explicitly.
+# If a future Ansible version resolves the become_user+scope=user interaction,
+# replace the shell task with:
+#   ansible.builtin.systemd:
+#     name: openclaw-gateway
+#     state: restarted
+#     scope: user
+#   become: true
+#   become_user: "{{ openclaw_user }}"
+#   environment:
+#     XDG_RUNTIME_DIR: "/run/user/{{ openclaw_uid_value }}"
+#     DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ openclaw_uid_value }}/bus"
+
 - name: Restart openclaw
   ansible.builtin.shell:
     cmd: systemctl --user restart openclaw-gateway
@@ -8,18 +24,4 @@
   environment:
     XDG_RUNTIME_DIR: "/run/user/{{ openclaw_uid_value }}"
     DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ openclaw_uid_value }}/bus"
-
-- name: Run openclaw doctor
-  ansible.builtin.command:
-    cmd: openclaw doctor --non-interactive
-  become: true
-  become_user: "{{ openclaw_user }}"
-  environment: "{{ openclaw_env }}"
-  changed_when: false
-  register: openclaw_doctor_result
-  failed_when: false
-
-- name: Show doctor output
-  ansible.builtin.debug:
-    var: openclaw_doctor_result.stdout_lines
-  when: openclaw_doctor_result.stdout_lines is defined
+  when: openclaw_uid_value is defined

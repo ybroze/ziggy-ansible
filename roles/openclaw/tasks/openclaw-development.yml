@@ -9,12 +9,7 @@
     group: "{{ openclaw_user }}"
     mode: '0755'
 
-- name: Check if openclaw repository already exists
-  ansible.builtin.stat:
-    path: "{{ openclaw_repo_dir }}/.git"
-  register: openclaw_repo_exists
-
-- name: Clone openclaw repository
+- name: Clone or update openclaw repository
   ansible.builtin.git:
     repo: "{{ openclaw_repo_url }}"
     dest: "{{ openclaw_repo_dir }}"
@@ -22,23 +17,11 @@
     update: true
   become: true
   become_user: "{{ openclaw_user }}"
-  when: not openclaw_repo_exists.stat.exists
+  register: git_result
 
-- name: Pull latest changes if repo exists
-  ansible.builtin.git:
-    repo: "{{ openclaw_repo_url }}"
-    dest: "{{ openclaw_repo_dir }}"
-    version: "{{ openclaw_repo_branch }}"
-    update: true
-  become: true
-  become_user: "{{ openclaw_user }}"
-  when: openclaw_repo_exists.stat.exists
-  register: git_pull_result
-
-- name: Display git pull status
+- name: Display git repository status
   ansible.builtin.debug:
-    msg: "Git repository updated: {{ git_pull_result.changed | default(false) }}"
-  when: openclaw_repo_exists.stat.exists
+    msg: "Git repository updated: {{ git_result.changed }}"
 
 - name: Install dependencies with pnpm
   ansible.builtin.shell:
@@ -49,7 +32,7 @@
   become_user: "{{ openclaw_user }}"
   environment: "{{ openclaw_env }}"
   register: pnpm_install_result
-  changed_when: "'Already up to date' not in pnpm_install_result.stdout"
+  changed_when: pnpm_install_result.stdout | length > 0
 
 - name: Build openclaw from source
   ansible.builtin.shell:

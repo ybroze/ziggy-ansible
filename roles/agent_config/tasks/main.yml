@@ -9,14 +9,6 @@
     group: "{{ openclaw_user }}"
     mode: '0700'
 
-- name: Create SSH directory for openclaw user
-  ansible.builtin.file:
-    path: "{{ openclaw_home }}/.ssh"
-    state: directory
-    owner: "{{ openclaw_user }}"
-    group: "{{ openclaw_user }}"
-    mode: '0700'
-
 - name: Deploy SSH key for GitHub (if provided)
   ansible.builtin.copy:
     content: "{{ agent_ssh_private_key }}"
@@ -114,3 +106,4 @@
   become: true
   become_user: "{{ openclaw_user }}"
   changed_when: false
+  when: agent_git_email is defined

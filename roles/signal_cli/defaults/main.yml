@@ -1,0 +1,9 @@
+---
+# signal-cli version to install
+signal_cli_version: "0.13.24"
+
+# Java package to install as signal-cli runtime dependency
+java_package: "openjdk-21-jre-headless"
+
+# Port for signal-cli JSON-RPC daemon
+signal_jsonrpc_port: 8080

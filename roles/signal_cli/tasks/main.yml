@@ -50,7 +50,7 @@
 
 - name: Configure Signal read receipts and delivery indicators
   ansible.builtin.uri:
-    url: "http://127.0.0.1:8080/api/v1/rpc"
+    url: "http://127.0.0.1:{{ signal_jsonrpc_port }}/api/v1/rpc"
     method: POST
     body_format: json
     body:

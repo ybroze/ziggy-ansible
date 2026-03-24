@@ -1,6 +1,17 @@
 ---
 # Release mode installation - Install via pnpm from npm registry
 
+- name: Get current OpenClaw version (before install)
+  ansible.builtin.shell:
+    cmd: openclaw --version 2>/dev/null || echo "not-installed"
+    executable: /bin/bash
+  become: true
+  become_user: "{{ openclaw_user }}"
+  environment: "{{ openclaw_env }}"
+  register: openclaw_version_before
+  changed_when: false
+  failed_when: false
+
 - name: Install OpenClaw globally as openclaw user (using pnpm)
   ansible.builtin.shell:
     cmd: pnpm install -g openclaw@latest
@@ -9,18 +20,19 @@
   become_user: "{{ openclaw_user }}"
   environment: "{{ openclaw_env }}"
   register: openclaw_install
-  changed_when: "'Already up to date' not in openclaw_install.stdout"
+  changed_when: false  # version comparison below determines changed state
 
-- name: Verify openclaw installation
+- name: Get current OpenClaw version (after install)
   ansible.builtin.shell:
-    cmd: openclaw --version
+    cmd: openclaw --version 2>/dev/null || echo "not-installed"
     executable: /bin/bash
   become: true
   become_user: "{{ openclaw_user }}"
   environment: "{{ openclaw_env }}"
-  register: openclaw_version
-  changed_when: false
+  register: openclaw_version_after
+  changed_when: openclaw_version_after.stdout != openclaw_version_before.stdout
+  failed_when: false
 
 - name: Display installed OpenClaw version (release)
   ansible.builtin.debug:
-    msg: "OpenClaw installed from npm: {{ openclaw_version.stdout }}"
+    msg: "OpenClaw installed from npm: {{ openclaw_version_after.stdout }}"
