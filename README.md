@@ -132,3 +132,31 @@ WHERE date(start_time) = date('now');
 - **Morning briefing** fires once daily with the calendar summary
 
 The database is the single source of truth for all her operational state. If you want to bulk-import contacts, adjust reply tracking, or audit what she's been up to — query the DB.
+
+### Setting Up the Heartbeat
+
+The EA's proactive behavior — checking email, polling SMS, sending morning briefings — is driven by `HEARTBEAT.md` in the workspace. This file ships with the workspace repo, but if you're starting fresh (without access to the workspace repo), you'll need to create it yourself.
+
+In your OpenClaw workspace directory (`~/.openclaw/workspace/`), create `HEARTBEAT.md` with the periodic tasks you want the agent to perform. Each task is a markdown list item describing what to check and when. Example:
+
+```markdown
+# HEARTBEAT.md
+
+- Check ziggy@example.com inbox for unread emails. Reply appropriately, mark as read.
+- Check Twilio SMS inbox for new inbound messages. Forward new ones to the owner.
+- Morning briefing (once daily, ~8 AM): fetch today's calendar events and send a summary.
+```
+
+The agent reads this file on each heartbeat cycle and executes whatever's listed. If the file is empty or missing, heartbeats are no-ops.
+
+You'll also want to configure the heartbeat interval in `openclaw.json`:
+
+```json
+{
+  "heartbeat": {
+    "intervalMinutes": 30
+  }
+}
+```
+
+The agent tracks what it's already checked in the SQLite database (via the `state` table and `memory/heartbeat-state.json`) to avoid duplicate work across heartbeats.
