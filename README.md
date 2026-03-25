@@ -21,18 +21,19 @@ One playbook. One command. Everything from bare metal to running agent.
 ## Structure
 
 ```
+schema.sql             # SQLite database schema — initialize the EA's state DB
 playbooks/
-  agent.yml          # Single entry point — provisions everything
+  agent.yml            # Single entry point — provisions everything
 roles/
-  common/            # OS detection and base packages
-  chrome/            # Google Chrome stable (headless)
-  caddy/             # Caddy reverse proxy + HTTPS
-  signal_cli/        # signal-cli + Java
-  agent_config/      # SSH keys, GitHub PAT, Twilio, Google OAuth
-  openclaw_config/   # openclaw.json templating + workspace pull
+  common/              # OS detection and base packages
+  chrome/              # Google Chrome stable (headless)
+  caddy/               # Caddy reverse proxy + HTTPS
+  signal_cli/          # signal-cli + Java
+  agent_config/        # SSH keys, GitHub PAT, Twilio, Google OAuth
+  openclaw_config/     # openclaw.json templating + workspace pull
 vendor/
-  openclaw-ansible/  # Submodule: user, Node.js, pnpm, OpenClaw, firewall
-media/               # Avatar assets
+  openclaw-ansible/    # Submodule: user, Node.js, pnpm, OpenClaw, firewall
+media/                 # Avatar assets
 ```
 
 ## Prerequisites
@@ -85,15 +86,19 @@ Once provisioned, Ziggy functions as an executive assistant reachable via Signal
 
 ### The SQLite Database
 
-This is the operational brain. Grab a copy and query it directly:
+This is the operational brain. Initialize it from the schema included in this repo, then the agent populates it at runtime:
 
 ```bash
-# Copy from the server
-scp openclaw@your-server:~/.config/ziggy/memory.db ./
+# On the server — create the database
+mkdir -p ~/.config/ziggy
+sqlite3 ~/.config/ziggy/memory.db < schema.sql
 
-# Browse locally (install: brew install sqlite3)
+# Or grab a copy to query locally
+scp openclaw@your-server:~/.config/ziggy/memory.db ./
 sqlite3 memory.db
 ```
+
+See [`schema.sql`](schema.sql) for the full schema.
 
 **Tables:**
 
