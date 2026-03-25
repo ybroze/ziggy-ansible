@@ -21,7 +21,6 @@ One playbook. One command. Everything from bare metal to running agent.
 ## Structure
 
 ```
-schema.sql             # SQLite database schema — initialize the EA's state DB
 playbooks/
   agent.yml            # Single entry point — provisions everything
 roles/
@@ -104,48 +103,7 @@ Once provisioned, Ziggy functions as an executive assistant reachable via Signal
 
 ### The SQLite Database
 
-This is the operational brain. Initialize it from the schema included in this repo, then the agent populates it at runtime:
-
-```bash
-# On the server — create the database
-mkdir -p ~/.config/ziggy
-sqlite3 ~/.config/ziggy/memory.db < schema.sql
-
-# Or grab a copy to query locally
-scp openclaw@your-server:~/.config/ziggy/memory.db ./
-sqlite3 memory.db
-```
-
-See [`schema.sql`](schema.sql) for the full schema.
-
-**Tables:**
-
-| Table | Purpose |
-|-------|---------|
-| `contacts` | People directory — name, email, phone, relationship, persona, notes, instruments |
-| `emails` | Gmail thread tracking — subject, sender, reply status |
-| `sms_messages` | Twilio SMS history — inbound/outbound, status, reply tracking |
-| `calendar_events` | Google Calendar cache — events with times, locations |
-| `state` | Key-value store for internal state |
-| `sms_opt_outs` | SMS opt-out compliance tracking |
-
-**Useful queries:**
-
-```sql
--- All contacts with their persona type
-SELECT name, phone, email, persona FROM contacts ORDER BY name;
-
--- Unreplied emails
-SELECT from_name, subject, received_at FROM emails WHERE replied = 0;
-
--- Recent SMS activity
-SELECT direction, from_number, to_number, body, date_sent
-FROM sms_messages ORDER BY date_created DESC LIMIT 20;
-
--- Today's calendar
-SELECT title, start_time, end_time, location FROM calendar_events
-WHERE date(start_time) = date('now');
-```
+The agent creates and manages a SQLite database at `~/.config/ziggy/memory.db` for operational state — contacts, email tracking, SMS history, calendar cache, etc. The schema is the agent's concern; Ansible just ensures the config directory exists.
 
 ### How It Works
 
