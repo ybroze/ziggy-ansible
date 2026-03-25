@@ -112,3 +112,15 @@ To set it up, just message the agent:
 She'll configure `HEARTBEAT.md` (the task list) and `openclaw.json` (the interval) herself. You can add, change, or remove heartbeat tasks the same way — just tell her what you want.
 
 If the heartbeat file is empty or missing, heartbeats are no-ops and cost nothing.
+
+### Talking to the Agent
+
+Be specific. The agent does exactly what you say — no more, no less. Vague instructions produce vague results.
+
+| ❌ Vague | ✅ Specific |
+|----------|------------|
+| "Check my email" | "Check ziggy@example.com for unread emails every heartbeat. Reply to real people, skip automated notifications, mark everything as read." |
+| "Send me a morning update" | "Send me a calendar summary at 8:00 AM Central, once per day. If no events, say so." |
+| "Remind me about the meeting" | "Remind me at 2:45 PM Central today about my 3:00 PM call with Dave." |
+
+Timing, frequency, recipients, format, what to skip, what to include — say it explicitly. If you leave it ambiguous, the agent will either ask for clarification or make a reasonable default that might not be what you wanted.
