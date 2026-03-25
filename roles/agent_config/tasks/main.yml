@@ -59,6 +59,21 @@
   when: twilio_sid is defined
   no_log: true
 
+- name: Initialize SQLite state database
+  ansible.builtin.command:
+    cmd: sqlite3 {{ openclaw_home }}/.config/ziggy/memory.db ""
+    creates: "{{ openclaw_home }}/.config/ziggy/memory.db"
+  become: true
+  become_user: "{{ openclaw_user }}"
+
+- name: Apply database schema
+  ansible.builtin.shell:
+    cmd: sqlite3 {{ openclaw_home }}/.config/ziggy/memory.db < {{ playbook_dir }}/../schema.sql
+    executable: /bin/bash
+  become: true
+  become_user: "{{ openclaw_user }}"
+  changed_when: false
+
 - name: Initialize workspace git remote
   ansible.builtin.shell:
     cmd: |
