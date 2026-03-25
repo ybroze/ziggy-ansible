@@ -101,19 +101,6 @@ So if you want to add a contact, change a heartbeat task, tweak the database, or
 
 Once provisioned, Ziggy functions as an executive assistant reachable via Signal (and optionally Telegram). She manages contacts, email, SMS, and calendar — all backed by a local SQLite database at `~/.config/ziggy/memory.db`.
 
-### The SQLite Database
-
-The agent creates and manages a SQLite database at `~/.config/ziggy/memory.db` for operational state — contacts, email tracking, SMS history, calendar cache, etc. The schema is the agent's concern; Ansible just ensures the config directory exists.
-
-### How It Works
-
-- **Heartbeats** check email, SMS, and calendar on a recurring loop (see [Setting Up the Heartbeat](#setting-up-the-heartbeat))
-- **Contacts** determine persona: different behavior for inner-circle vs. everyone else
-- **Email** replies are tracked in the DB to avoid duplicates
-- **Morning briefing** fires once daily with the calendar summary
-
-The database is the single source of truth for all operational state. If you want to bulk-import contacts, adjust reply tracking, or audit activity — query the DB.
-
 ### Setting Up the Heartbeat
 
 The EA's proactive behavior — checking email, polling SMS, sending morning briefings — is driven by `HEARTBEAT.md` in the workspace. This file ships with the workspace repo, but if you're starting fresh (without access to the workspace repo), you'll need to create it yourself.
