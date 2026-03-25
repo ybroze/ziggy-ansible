@@ -1,19 +1,10 @@
 ---
-# NOTE: ansible.builtin.systemd with scope=user requires the loginctl linger
-# to be enabled and XDG_RUNTIME_DIR/DBUS_SESSION_BUS_ADDRESS to be set.
-# When become_user is combined with scope=user, systemd may not find the
-# user bus. The shell workaround below sets these env vars explicitly.
-# If a future Ansible version resolves the become_user+scope=user interaction,
-# replace the shell task with:
-#   ansible.builtin.systemd:
-#     name: openclaw-gateway
-#     state: restarted
-#     scope: user
-#   become: true
-#   become_user: "{{ openclaw_user }}"
-#   environment:
-#     XDG_RUNTIME_DIR: "/run/user/{{ openclaw_uid_value }}"
-#     DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ openclaw_uid_value }}/bus"
+- name: Look up openclaw user UID
+  ansible.builtin.command:
+    cmd: "id -u {{ openclaw_user }}"
+  register: openclaw_uid_lookup
+  changed_when: false
+  listen: Restart openclaw
 
 - name: Restart openclaw
   ansible.builtin.shell:
@@ -22,6 +13,6 @@
   become: true
   become_user: "{{ openclaw_user }}"
   environment:
-    XDG_RUNTIME_DIR: "/run/user/{{ openclaw_uid_value }}"
-    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ openclaw_uid_value }}/bus"
-  when: openclaw_uid_value is defined
+    XDG_RUNTIME_DIR: "/run/user/{{ openclaw_uid_lookup.stdout }}"
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ openclaw_uid_lookup.stdout }}/bus"
+  listen: Restart openclaw

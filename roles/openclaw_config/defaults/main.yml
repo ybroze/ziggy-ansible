@@ -1,0 +1,7 @@
+---
+openclaw_port: 18789
+openclaw_model_primary: "anthropic/claude-opus-4-6"
+openclaw_model_fallback: "anthropic/claude-sonnet-4-6"
+openclaw_heartbeat_interval: "5m"
+openclaw_max_concurrent: 4
+openclaw_subagent_max_concurrent: 8
