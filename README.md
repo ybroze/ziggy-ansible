@@ -80,6 +80,24 @@ ansible-playbook playbooks/agent.yml -i inventory.yml \
 - Signal account registration is stateful and can't be fully automated. See the `signal_cli` role for details.
 - The secrets file should **never** be committed unencrypted. Use `ansible-vault` or store it outside the repo.
 
+## Or Just Ask
+
+You don't have to touch any of this directly. Once Ziggy is running, she has full access to her own workspace and the `openclaw` user's home directory — she can read and write files, run shell commands, manage the SQLite database, edit her own config, and commit to git.
+
+**What she can do on the VPS:**
+- Read, write, and edit any file owned by `openclaw` (workspace, config, memory, DB)
+- Run shell commands as `openclaw` (install npm packages, query APIs, run scripts)
+- Manage cron jobs, heartbeat tasks, and her own OpenClaw configuration
+- Commit and push to git repos she has SSH access to
+- Access external services (Gmail, Google Calendar, Twilio, web search, browser automation)
+
+**What she cannot do:**
+- Anything requiring `sudo` or root (no package installs via apt, no firewall changes, no systemd management)
+- Modify files outside `openclaw`'s ownership (e.g., `/var/www/`, `/etc/`)
+- Ansible runs — those come from your local machine
+
+So if you want to add a contact, change a heartbeat task, tweak the database, or update workspace files — you can just message her and ask. The Ansible playbook is for provisioning and reprovisioning the server itself; day-to-day operations are conversational.
+
 ## Using the EA
 
 Once provisioned, Ziggy functions as an executive assistant reachable via Signal (and optionally Telegram). She manages contacts, email, SMS, and calendar — all backed by a local SQLite database at `~/.config/ziggy/memory.db`.
