@@ -124,14 +124,14 @@ SELECT title, start_time, end_time, location FROM calendar_events
 WHERE date(start_time) = date('now');
 ```
 
-### How She Works
+### How It Works
 
-- **Heartbeats** check email, SMS, and calendar on a recurring loop
-- **Contacts** determine persona: `inner-circle` gets real Ziggy, everyone else gets a polished EA surface
+- **Heartbeats** check email, SMS, and calendar on a recurring loop (see [Setting Up the Heartbeat](#setting-up-the-heartbeat))
+- **Contacts** determine persona: different behavior for inner-circle vs. everyone else
 - **Email** replies are tracked in the DB to avoid duplicates
 - **Morning briefing** fires once daily with the calendar summary
 
-The database is the single source of truth for all her operational state. If you want to bulk-import contacts, adjust reply tracking, or audit what she's been up to — query the DB.
+The database is the single source of truth for all operational state. If you want to bulk-import contacts, adjust reply tracking, or audit activity — query the DB.
 
 ### Setting Up the Heartbeat
 
