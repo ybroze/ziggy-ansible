@@ -32,8 +32,10 @@
       Linux: {{ is_linux }}
       Supported distro: {{ is_supported_distro }}
 
-- name: Install ACL for privilege escalation
+- name: Install base packages
   ansible.builtin.package:
-    name: acl
+    name:
+      - acl
+      - sqlite3
     state: present
   when: is_supported_distro
