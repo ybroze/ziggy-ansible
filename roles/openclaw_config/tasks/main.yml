@@ -98,7 +98,8 @@
     cmd: openclaw doctor --non-interactive
   become: true
   become_user: "{{ openclaw_user }}"
-  environment: "{{ openclaw_env }}"
+  environment:
+    PATH: "{{ openclaw_home }}/.local/share/pnpm:{{ openclaw_home }}/.local/bin:/usr/local/bin:/usr/bin:/bin"
   changed_when: false
   register: provision_doctor
   failed_when: false
