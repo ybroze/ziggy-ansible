@@ -101,6 +101,16 @@ So if you want to add a contact, change a heartbeat task, tweak the database, or
 
 Once provisioned, Ziggy functions as an executive assistant reachable via Signal (and optionally Telegram). She manages contacts, email, SMS, and calendar — all backed by a local SQLite database at `~/.config/ziggy/memory.db`.
 
+### Systems Thinking
+
+An AI agent without persistent storage is just a chatbot — it forgets everything between sessions. The real power comes when the agent can accumulate knowledge over time.
+
+That's what databases are for here. SQLite ships with the server so the agent can create and manage databases as needed — contacts, conversation history, email tracking, scheduling state, whatever the job requires. You don't define the schema upfront; the agent builds what it needs based on what you ask it to do.
+
+Think of it this way: the workspace files (`MEMORY.md`, `HEARTBEAT.md`, etc.) are the agent's working notes. Databases are the structured records — the filing cabinet. Together they give the agent real continuity: it remembers who people are, what it's already done, and what it's supposed to do next.
+
+You don't need to think about databases at all. Just tell the agent what you need tracked and it'll figure out the storage.
+
 ### Setting Up the Heartbeat
 
 Heartbeats let the agent check things proactively — email, SMS, calendar, whatever you need — on a recurring loop. We recommend a 5-minute interval.
