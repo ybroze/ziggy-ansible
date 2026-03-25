@@ -172,5 +172,5 @@ Timing, frequency, recipients, format, what to skip, what to include — say it 
 <p align="center">
   <em>"In the event of a provisioning failure, there is a 95.6% probability<br>that something is wrong with your secrets file."</em><br><br>
   🧩<br><br>
-  <sub>Theorizing that one could automate what had gone wrong in their life,<br>Dr. Sam Beckett stepped into the Ansible accelerator — and vanished.<br>He awoke to find himself trapped in a fresh VPS, facing config files<br>that were not his own, and driven by an unknown force to put right<br>what once went wrong. And hoping each <code>ansible-playbook</code> run<br>will be the run — that takes him <code>$HOME</code>.</sub>
+  <sub>Theorizing that one could automate what had gone wrong in their lives,<br>Dr. Sam Beckett stepped into the Ansible accelerator — and vanished.<br>He awoke to find himself trapped in a fresh VPS, facing config files<br>that were not his own, and driven by an unknown force to put right<br>what once went wrong. And hoping each <code>ansible-playbook</code> run<br>will be the run — that takes him <code>$HOME</code>.</sub>
 </p>
