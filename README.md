@@ -103,28 +103,12 @@ Once provisioned, Ziggy functions as an executive assistant reachable via Signal
 
 ### Setting Up the Heartbeat
 
-The EA's proactive behavior — checking email, polling SMS, sending morning briefings — is driven by `HEARTBEAT.md` in the workspace. This file ships with the workspace repo, but if you're starting fresh (without access to the workspace repo), you'll need to create it yourself.
+Heartbeats let the agent check things proactively — email, SMS, calendar, whatever you need — on a recurring loop. We recommend a 5-minute interval.
 
-In your OpenClaw workspace directory (`~/.openclaw/workspace/`), create `HEARTBEAT.md` with the periodic tasks you want the agent to perform. Each task is a markdown list item describing what to check and when. Example:
+To set it up, just message the agent:
 
-```markdown
-# HEARTBEAT.md
+> _"Check my email every heartbeat. Send me a morning briefing at 8 AM with my calendar. Poll for new SMS and forward anything to me."_
 
-- Check ziggy@example.com inbox for unread emails. Reply appropriately, mark as read.
-- Check Twilio SMS inbox for new inbound messages. Forward new ones to the owner.
-- Morning briefing (once daily, ~8 AM): fetch today's calendar events and send a summary.
-```
+She'll configure `HEARTBEAT.md` (the task list) and `openclaw.json` (the interval) herself. You can add, change, or remove heartbeat tasks the same way — just tell her what you want.
 
-The agent reads this file on each heartbeat cycle and executes whatever's listed. If the file is empty or missing, heartbeats are no-ops.
-
-You'll also want to configure the heartbeat interval in `openclaw.json`:
-
-```json
-{
-  "heartbeat": {
-    "intervalMinutes": 30
-  }
-}
-```
-
-The agent tracks what it's already checked in the SQLite database (via the `state` table and `memory/heartbeat-state.json`) to avoid duplicate work across heartbeats.
+If the heartbeat file is empty or missing, heartbeats are no-ops and cost nothing.
