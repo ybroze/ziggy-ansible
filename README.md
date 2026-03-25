@@ -78,3 +78,57 @@ ansible-playbook playbooks/agent.yml -i inventory.yml \
 
 - Signal account registration is stateful and can't be fully automated. See the `signal_cli` role for details.
 - The secrets file should **never** be committed unencrypted. Use `ansible-vault` or store it outside the repo.
+
+## Using the EA
+
+Once provisioned, Ziggy functions as an executive assistant reachable via Signal (and optionally Telegram). She manages contacts, email, SMS, and calendar — all backed by a local SQLite database at `~/.config/ziggy/memory.db`.
+
+### The SQLite Database
+
+This is the operational brain. Grab a copy and query it directly:
+
+```bash
+# Copy from the server
+scp openclaw@your-server:~/.config/ziggy/memory.db ./
+
+# Browse locally (install: brew install sqlite3)
+sqlite3 memory.db
+```
+
+**Tables:**
+
+| Table | Purpose |
+|-------|---------|
+| `contacts` | People directory — name, email, phone, relationship, persona, notes, instruments |
+| `emails` | Gmail thread tracking — subject, sender, reply status |
+| `sms_messages` | Twilio SMS history — inbound/outbound, status, reply tracking |
+| `calendar_events` | Google Calendar cache — events with times, locations |
+| `state` | Key-value store for internal state |
+| `sms_opt_outs` | SMS opt-out compliance tracking |
+
+**Useful queries:**
+
+```sql
+-- All contacts with their persona type
+SELECT name, phone, email, persona FROM contacts ORDER BY name;
+
+-- Unreplied emails
+SELECT from_name, subject, received_at FROM emails WHERE replied = 0;
+
+-- Recent SMS activity
+SELECT direction, from_number, to_number, body, date_sent
+FROM sms_messages ORDER BY date_created DESC LIMIT 20;
+
+-- Today's calendar
+SELECT title, start_time, end_time, location FROM calendar_events
+WHERE date(start_time) = date('now');
+```
+
+### How She Works
+
+- **Heartbeats** check email, SMS, and calendar on a recurring loop
+- **Contacts** determine persona: `inner-circle` gets real Ziggy, everyone else gets a polished EA surface
+- **Email** replies are tracked in the DB to avoid duplicates
+- **Morning briefing** fires once daily with the calendar summary
+
+The database is the single source of truth for all her operational state. If you want to bulk-import contacts, adjust reply tracking, or audit what she's been up to — query the DB.
