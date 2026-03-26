@@ -1,6 +1,43 @@
 ---
 # Deploy OpenClaw configuration and pull workspace from git
 
+- name: Restrict state directory permissions
+  ansible.builtin.file:
+    path: "{{ openclaw_home }}/.openclaw"
+    state: directory
+    owner: "{{ openclaw_user }}"
+    group: "{{ openclaw_user }}"
+    mode: '0700'
+
+- name: Create systemd user override directory
+  ansible.builtin.file:
+    path: "{{ openclaw_home }}/.config/systemd/user/openclaw-gateway.service.d"
+    state: directory
+    owner: "{{ openclaw_user }}"
+    group: "{{ openclaw_user }}"
+    mode: '0755'
+
+- name: Deploy startup optimization environment
+  ansible.builtin.copy:
+    dest: "{{ openclaw_home }}/.config/systemd/user/openclaw-gateway.service.d/optimization.conf"
+    owner: "{{ openclaw_user }}"
+    group: "{{ openclaw_user }}"
+    mode: '0644'
+    content: |
+      [Service]
+      Environment=NODE_COMPILE_CACHE=/var/tmp/openclaw-compile-cache
+      Environment=OPENCLAW_NO_RESPAWN=1
+  notify:
+    - Restart openclaw
+
+- name: Ensure compile cache directory exists
+  ansible.builtin.file:
+    path: /var/tmp/openclaw-compile-cache
+    state: directory
+    owner: "{{ openclaw_user }}"
+    group: "{{ openclaw_user }}"
+    mode: '0755'
+
 - name: Deploy openclaw.json
   ansible.builtin.template:
     src: openclaw.json.j2

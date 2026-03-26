@@ -13,8 +13,14 @@
       }
     }
   },
+  "session": {
+    "dmScope": "per-channel-peer"
+  },
   "agents": {
     "defaults": {
+      "memorySearch": {
+        "enabled": false
+      },
       "model": {
         "primary": "{{ openclaw_model_primary | default('anthropic/claude-opus-4-6') }}",
         "fallbacks": [
