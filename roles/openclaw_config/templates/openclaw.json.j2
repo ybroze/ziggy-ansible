@@ -27,7 +27,7 @@
           "{{ openclaw_model_fallback | default('anthropic/claude-sonnet-4-6') }}"
         ]
       },
-      "workspace": "{{ openclaw_home }}/.openclaw/workspace",
+      "workspace": "{{ agent_workspace }}",
       "compaction": {
         "mode": "safeguard"
       },

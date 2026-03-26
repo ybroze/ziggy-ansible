@@ -1,5 +1,5 @@
 ---
-# Deploy OpenClaw configuration and pull workspace from git
+# Deploy OpenClaw backend configuration
 
 - name: Restrict state directory permissions
   ansible.builtin.file:
@@ -77,77 +77,6 @@
   when: anthropic_api_key is defined
   no_log: true
 
-- name: Check if workspace is a git repo
-  ansible.builtin.stat:
-    path: "{{ openclaw_home }}/.openclaw/workspace/.git"
-  register: workspace_git
-
-- name: Initialize workspace git remote
-  ansible.builtin.shell:
-    cmd: |
-      cd {{ openclaw_home }}/.openclaw/workspace
-      if ! git remote get-url origin >/dev/null 2>&1; then
-        git init
-        git remote add origin {{ workspace_git_remote }}
-        echo "initialized"
-      else
-        echo "already configured"
-      fi
-    executable: /bin/bash
-  become: true
-  become_user: "{{ openclaw_user }}"
-  register: workspace_git_init
-  changed_when: "'initialized' in workspace_git_init.stdout"
-  when: workspace_git_remote is defined
-
-- name: Clone workspace from private repo
-  ansible.builtin.git:
-    repo: "{{ workspace_git_remote }}"
-    dest: "{{ openclaw_home }}/.openclaw/workspace"
-    version: "{{ workspace_git_branch | default('master') }}"
-    accept_hostkey: true
-    key_file: "{{ openclaw_home }}/.ssh/id_ed25519"
-  become: true
-  become_user: "{{ openclaw_user }}"
-  when: not workspace_git.stat.exists
-
-- name: Commit and push local workspace changes
-  ansible.builtin.shell:
-    cmd: |
-      cd {{ openclaw_home }}/.openclaw/workspace
-      if [ -z "$(git status --porcelain)" ]; then
-        echo "clean"
-        exit 0
-      fi
-      git add -A
-      git commit -m "auto-commit: pre-provision snapshot"
-      if git remote get-url origin >/dev/null 2>&1; then
-        git push
-        echo "pushed"
-      else
-        echo "committed"
-      fi
-    executable: /bin/bash
-  become: true
-  become_user: "{{ openclaw_user }}"
-  environment:
-    GIT_SSH_COMMAND: "ssh -i {{ openclaw_home }}/.ssh/id_ed25519 -o StrictHostKeyChecking=accept-new"
-  register: workspace_commit
-  changed_when: "'pushed' in workspace_commit.stdout or 'committed' in workspace_commit.stdout"
-  when: workspace_git.stat.exists
-
-- name: Pull latest workspace changes
-  ansible.builtin.git:
-    repo: "{{ workspace_git_remote }}"
-    dest: "{{ openclaw_home }}/.openclaw/workspace"
-    version: "{{ workspace_git_branch | default('master') }}"
-    update: true
-    accept_hostkey: true
-    key_file: "{{ openclaw_home }}/.ssh/id_ed25519"
-  become: true
-  become_user: "{{ openclaw_user }}"
-  when: workspace_git.stat.exists
-
 - name: Run post-provision health check
   ansible.builtin.command:
     cmd: openclaw doctor --non-interactive
@@ -163,11 +92,3 @@
   ansible.builtin.debug:
     var: provision_doctor.stdout_lines
   when: provision_doctor.stdout_lines is defined
-
-- name: Ensure workspace memory directory exists
-  ansible.builtin.file:
-    path: "{{ openclaw_home }}/.openclaw/workspace/memory"
-    state: directory
-    owner: "{{ openclaw_user }}"
-    group: "{{ openclaw_user }}"
-    mode: '0755'

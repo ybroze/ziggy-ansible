@@ -1,21 +1,21 @@
 <p align="center">
-  <img src="media/hero-banner.jpg" width="100%" alt="Ziggy" />
+  <img src="media/hero-banner.jpg" width="100%" alt="Agent Ansible" />
 </p>
 
-# Ziggy — Ansible Deployment
-
-Ansible playbooks for provisioning Ziggy's VM on a fresh Debian/Ubuntu server. Uses [openclaw-ansible](https://github.com/openclaw/openclaw-ansible) as a submodule for the base OpenClaw installation, then layers on Ziggy-specific config: Signal, Caddy, Chrome, credentials, and workspace.
+# Agent Ansible
 
 One playbook. One command. Everything from bare metal to running agent.
 
+Ansible playbooks for provisioning an AI agent VM on a fresh Debian/Ubuntu server. Currently uses [OpenClaw](https://github.com/openclaw/openclaw-ansible) as the backend, with the architecture designed so the backend is swappable and the agent definition — the workspace — is what's portable.
+
 ## What It Does
 
-- Creates the `openclaw` system user
-- Installs Node.js, pnpm, and OpenClaw
+- Creates a system user for the agent
+- Installs Node.js, pnpm, and the backend (OpenClaw)
 - Configures UFW firewall and fail2ban
 - Installs headless Chrome, Caddy (HTTPS), and signal-cli
-- Deploys API keys, OAuth tokens, SSH keys, and Twilio credentials
-- Templates `openclaw.json` from your secrets file
+- Deploys API keys, SSH keys, and service credentials
+- Templates backend configuration from your secrets file
 - Clones the workspace repo and starts the gateway
 
 ## Structure
@@ -29,11 +29,21 @@ roles/
   caddy/               # Caddy static file server + HTTPS
   signal_cli/          # signal-cli + Java
   credentials/         # SSH keys, GitHub PAT, Twilio, Google password
-  openclaw_config/     # openclaw.json templating + workspace pull
+  workspace/           # Workspace git clone, sync, and memory directory
+  openclaw_config/     # OpenClaw backend: config templating + health check
 vendor/
   openclaw-ansible/    # Submodule: user, Node.js, pnpm, OpenClaw, firewall
-media/                 # Hero banner for README
 ```
+
+## Key Variables
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `agent_user` | `openclaw` | System user the agent runs as |
+| `agent_home` | `/home/openclaw` | Home directory |
+| `agent_name` | `agent` | Used for config directory naming (`~/.config/<name>/`) |
+| `agent_workspace` | `{{ agent_home }}/.openclaw/workspace` | Where the agent definition lives |
+| `workspace_git_remote` | — | Git repo containing the agent's workspace files |
 
 ## Prerequisites
 
@@ -78,24 +88,25 @@ ansible-playbook playbooks/agent.yml -i inventory.yml \
 
 - Signal account registration is stateful and can't be fully automated. See the `signal_cli` role for details.
 - The secrets file should **never** be committed unencrypted. Use `ansible-vault` or store it outside the repo.
+- The backend (OpenClaw) is separated from the workspace and credential roles. The workspace — the agent definition files — is what makes the agent yours and is portable across backends.
 
 ## Or Just Ask
 
-You don't have to touch any of this directly. Once Ziggy is running, she has full access to her own workspace and the `openclaw` user's home directory — she can read and write files, run shell commands, manage the SQLite database, edit her own config, and commit to git.
+You don't have to touch any of this directly. Once the agent is running, it has full access to its own workspace and home directory — it can read and write files, run shell commands, manage databases, edit its own config, and commit to git.
 
-**What she can do on the VPS:**
-- Read, write, and edit any file owned by `openclaw` (workspace, config, memory, DB)
-- Run shell commands as `openclaw` (install npm packages, query APIs, run scripts)
-- Manage cron jobs, heartbeat tasks, and her own OpenClaw configuration
-- Commit and push to git repos she has SSH access to
+**What the agent can do on the VPS:**
+- Read, write, and edit any file it owns (workspace, config, memory, DB)
+- Run shell commands (install npm packages, query APIs, run scripts)
+- Manage cron jobs, heartbeat tasks, and its own configuration
+- Commit and push to git repos it has SSH access to
 - Access external services (Gmail, Google Calendar, Twilio, web search, browser automation)
 
-**What she cannot do:**
+**What it cannot do:**
 - Anything requiring `sudo` or root (no package installs via apt, no firewall changes, no systemd management)
-- Modify files outside `openclaw`'s ownership (e.g., `/var/www/`, `/etc/`)
+- Modify files outside its ownership
 - Ansible runs — those come from your local machine
 
-So if you want to add a contact, change a heartbeat task, tweak the database, or update workspace files — you can just message her and ask. The Ansible playbook is for provisioning and reprovisioning the server itself; day-to-day operations are conversational.
+The Ansible playbook is for provisioning and reprovisioning the server itself; day-to-day operations are conversational.
 
 ---
 

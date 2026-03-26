@@ -4,16 +4,18 @@
 # from your secrets file if you prefer not to store them here.
 all:
   children:
-    openclaw_servers:
+    agent_servers:
       hosts:
         my-agent:
           ansible_host: "{{ server_ip }}"
           ansible_user: "{{ server_user | default('root') }}"
           ansible_become: true
   vars:
-    # OpenClaw base
-    openclaw_user: openclaw
-    openclaw_home: /home/openclaw
+    # Agent identity
+    agent_user: openclaw
+    agent_home: /home/openclaw
+    # agent_name: ziggy
+
     # Extensions
     caddy_domain: "{{ agent_domain | default('') }}"
     signal_cli_version: "0.13.24"

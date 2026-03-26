@@ -1,0 +1,2 @@
+---
+agent_workspace: "{{ agent_home }}/.openclaw/workspace"

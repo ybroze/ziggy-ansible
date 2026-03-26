@@ -1,17 +1,20 @@
 ---
-# Ziggy VM — Full provisioning
+# Agent VM — Full provisioning
 #
-# Usage from your laptop:
+# Usage:
 #   ansible-playbook playbooks/agent.yml -i inventory.yml \
 #     --ask-become-pass \
-#     --extra-vars @~/.secrets/ziggy-ansible-secrets.yml
+#     --extra-vars @secrets.yml
 
-- name: Provision Ziggy VM
-  hosts: openclaw_servers
+- name: Provision agent VM
+  hosts: agent_servers
   become: true
 
   vars:
     ansible_python_interpreter: /usr/bin/python3
+    # Map generic names to openclaw submodule expectations
+    openclaw_user: "{{ agent_user }}"
+    openclaw_home: "{{ agent_home }}"
 
   environment:
     TERM: xterm-256color
@@ -26,15 +29,18 @@
       when: not ci_test | default(false)
 
   roles:
-    # Base (local)
+    # Base
     - common
 
-    # OpenClaw core (from vendor/openclaw-ansible)
+    # Backend (from vendor/openclaw-ansible)
     - openclaw
 
-    # Ziggy-specific extensions
+    # Infrastructure
     - chrome
     - caddy
     - signal_cli
+
+    # Agent
     - credentials
+    - workspace
     - openclaw_config
