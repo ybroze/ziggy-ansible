@@ -8,6 +8,7 @@ __pycache__/
 
 # Secrets — only ignore actual secret files, not the example
 vault/
+secrets.yml
 *.pem
 *.key
 inventory.yml
