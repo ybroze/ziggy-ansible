@@ -28,7 +28,7 @@ roles/
   chrome/              # Google Chrome stable (headless)
   caddy/               # Caddy static file server + HTTPS
   signal_cli/          # signal-cli + Java
-  agent_config/        # SSH keys, GitHub PAT, Twilio, Google OAuth
+  credentials/         # SSH keys, GitHub PAT, Twilio, Google password
   openclaw_config/     # openclaw.json templating + workspace pull
 vendor/
   openclaw-ansible/    # Submodule: user, Node.js, pnpm, OpenClaw, firewall

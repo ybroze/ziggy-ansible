@@ -41,12 +41,16 @@
 
 - name: Verify signal-cli is working
   ansible.builtin.command: signal-cli --version
-  register: signal_cli_installed_version
   changed_when: false
 
-- name: Display signal-cli version
-  ansible.builtin.debug:
-    msg: "Installed: {{ signal_cli_installed_version.stdout }}"
+- name: Check if signal-cli JSON-RPC is reachable
+  ansible.builtin.wait_for:
+    host: 127.0.0.1
+    port: "{{ signal_jsonrpc_port }}"
+    timeout: 3
+  register: signal_rpc_check
+  failed_when: false
+  when: signal_account is defined
 
 - name: Configure Signal read receipts and delivery indicators
   ansible.builtin.uri:
@@ -65,8 +69,9 @@
   become: true
   become_user: "{{ openclaw_user }}"
   changed_when: false
-  failed_when: false
-  when: signal_account is defined
+  when:
+    - signal_account is defined
+    - signal_rpc_check.port is defined
 
 # NOTE: Signal account registration is stateful and cannot be automated.
 # The signal-cli data directory (~/.local/share/signal-cli) must be

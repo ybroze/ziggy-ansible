@@ -82,6 +82,24 @@
     path: "{{ openclaw_home }}/.openclaw/workspace/.git"
   register: workspace_git
 
+- name: Initialize workspace git remote
+  ansible.builtin.shell:
+    cmd: |
+      cd {{ openclaw_home }}/.openclaw/workspace
+      if ! git remote get-url origin >/dev/null 2>&1; then
+        git init
+        git remote add origin {{ workspace_git_remote }}
+        echo "initialized"
+      else
+        echo "already configured"
+      fi
+    executable: /bin/bash
+  become: true
+  become_user: "{{ openclaw_user }}"
+  register: workspace_git_init
+  changed_when: "'initialized' in workspace_git_init.stdout"
+  when: workspace_git_remote is defined
+
 - name: Clone workspace from private repo
   ansible.builtin.git:
     repo: "{{ workspace_git_remote }}"

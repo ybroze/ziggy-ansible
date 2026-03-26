@@ -17,7 +17,6 @@
       | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
     creates: /usr/share/keyrings/caddy-stable-archive-keyring.gpg
     executable: /bin/bash
-  changed_when: false
 
 - name: Add Caddy stable apt repository
   ansible.builtin.apt_repository:

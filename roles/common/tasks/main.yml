@@ -24,18 +24,9 @@
     - is_linux
     - not is_supported_distro
 
-- name: Display detected OS
-  ansible.builtin.debug:
-    msg: |
-      Detected OS: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}
-      OS Family: {{ ansible_facts['os_family'] }}
-      Linux: {{ is_linux }}
-      Supported distro: {{ is_supported_distro }}
-
 - name: Install base packages
   ansible.builtin.package:
     name:
       - acl
-      - sqlite3
     state: present
   when: is_supported_distro

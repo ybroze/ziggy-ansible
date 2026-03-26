@@ -36,5 +36,5 @@
     - chrome
     - caddy
     - signal_cli
-    - agent_config
+    - credentials
     - openclaw_config
