@@ -29,12 +29,6 @@
     - content: "{{ agent_github_pat | default('') }}"
       dest: "{{ openclaw_home }}/.config/ziggy/github-token.txt"
       when: "{{ agent_github_pat is defined }}"
-    - content: "{{ agent_google_credentials | default({}) | to_nice_json }}"
-      dest: "{{ openclaw_home }}/.config/ziggy/google-credentials.json"
-      when: "{{ agent_google_credentials is defined }}"
-    - content: "{{ agent_google_tokens | default({}) | to_nice_json }}"
-      dest: "{{ openclaw_home }}/.config/ziggy/google-tokens.json"
-      when: "{{ agent_google_tokens is defined }}"
   loop_control:
     label: "{{ item.dest }}"
 

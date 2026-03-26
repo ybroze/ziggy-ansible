@@ -4,7 +4,7 @@
 # Usage from your laptop:
 #   ansible-playbook playbooks/agent.yml -i inventory.yml \
 #     --ask-become-pass \
-#     --extra-vars @~/Secrets/ziggy-ansible-secrets.yml
+#     --extra-vars @~/.secrets/ziggy-ansible-secrets.yml
 
 - name: Provision Ziggy VM
   hosts: openclaw_servers
