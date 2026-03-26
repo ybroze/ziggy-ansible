@@ -70,6 +70,31 @@
   register: git_init
   changed_when: "'initialized' in git_init.stdout"
 
+- name: Deploy Google password
+  ansible.builtin.copy:
+    content: "{{ google_password }}"
+    dest: "{{ openclaw_home }}/.config/ziggy/google-password.txt"
+    owner: "{{ openclaw_user }}"
+    group: "{{ openclaw_user }}"
+    mode: '0600'
+  no_log: true
+  when: google_password is defined and google_password | length > 0
+
+- name: Install Google Workspace CLI
+  ansible.builtin.shell:
+    cmd: |
+      if command -v gws >/dev/null 2>&1; then
+        echo "already installed"
+      else
+        pnpm add -g @googleworkspace/cli
+        echo "installed"
+      fi
+    executable: /bin/bash
+  become: true
+  become_user: "{{ openclaw_user }}"
+  register: gws_install
+  changed_when: "'installed' in gws_install.stdout"
+
 - name: Configure git user for openclaw
   ansible.builtin.shell:
     cmd: |
