@@ -43,7 +43,7 @@ vendor/
 | `agent_home` | `/home/openclaw` | Home directory |
 | `agent_name` | `agent` | Used for config directory naming (`~/.config/<name>/`) |
 | `agent_workspace` | `{{ agent_home }}/.openclaw/workspace` | Where the agent definition lives |
-| `workspace_git_remote` | — | Git repo containing the agent's workspace files |
+| `workspace_git_origin` | — | Git remote for the agent's workspace files |
 
 ## Prerequisites
 

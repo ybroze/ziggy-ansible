@@ -1,4 +1,4 @@
-{
+{%- set config = {
   "browser": {
     "enabled": true,
     "executablePath": "/usr/bin/google-chrome-stable",
@@ -18,33 +18,16 @@
   },
   "agents": {
     "defaults": {
-      "memorySearch": {
-        "enabled": false
-      },
+      "memorySearch": { "enabled": false },
       "model": {
-        "primary": "{{ openclaw_model_primary | default('anthropic/claude-opus-4-6') }}",
-        "fallbacks": [
-          "{{ openclaw_model_fallback | default('anthropic/claude-sonnet-4-6') }}"
-        ]
+        "primary": openclaw_model_primary,
+        "fallbacks": [openclaw_model_fallback]
       },
-      "workspace": "{{ agent_workspace }}",
-      "compaction": {
-        "mode": "safeguard"
-      },
-      "heartbeat": {
-        "every": "{{ openclaw_heartbeat_interval | default('5m') }}"
-      },
-      "maxConcurrent": {{ openclaw_max_concurrent | default(4) }},
-      "subagents": {
-        "maxConcurrent": {{ openclaw_subagent_max_concurrent | default(8) }}
-      }
-    }
-  },
-  "tools": {
-    "web": {
-      "search": {
-        "apiKey": "{{ brave_search_api_key }}"
-      }
+      "workspace": agent_workspace,
+      "compaction": { "mode": "safeguard" },
+      "heartbeat": { "every": openclaw_heartbeat_interval },
+      "maxConcurrent": openclaw_max_concurrent,
+      "subagents": { "maxConcurrent": openclaw_subagent_max_concurrent }
     }
   },
   "messages": {
@@ -56,36 +39,10 @@
     "restart": true,
     "ownerDisplay": "raw"
   },
-  "channels": {
-    "telegram": {
-      "enabled": true,
-      "dmPolicy": "allowlist",
-      "botToken": "{{ telegram_bot_token }}",
-      "allowFrom": {{ telegram_allow_from | to_json }},
-      "groupPolicy": "allowlist",
-      "streaming": "partial"
-    },
-    "signal": {
-      "enabled": true,
-      "account": "{{ signal_account }}",
-      "cliPath": "signal-cli",
-      "autoStart": true,
-      "receiveMode": "on-start",
-      "sendReadReceipts": true,
-      "dmPolicy": "allowlist",
-      "allowFrom": {{ signal_allow_from | to_json }},
-      "groupPolicy": "allowlist",
-      "chunkMode": "newline"
-    }
-  },
   "gateway": {
-    "port": {{ openclaw_port }},
+    "port": openclaw_port,
     "mode": "local",
     "bind": "loopback",
-    "auth": {
-      "mode": "token",
-      "token": "{{ openclaw_gateway_token }}"
-    },
     "nodes": {
       "denyCommands": [
         "camera.snap",
@@ -97,14 +54,59 @@
       ]
     }
   },
-  "plugins": {
-    "entries": {
+  "plugins": { "entries": {} }
+} -%}
+
+{# Brave search — only if API key is provided #}
+{%- if brave_search_api_key is defined and brave_search_api_key -%}
+  {%- set config = config | combine({
+    "tools": { "web": { "search": { "apiKey": brave_search_api_key } } }
+  }, recursive=true) -%}
+{%- endif -%}
+
+{# Gateway auth — only if token is provided #}
+{%- if openclaw_gateway_token is defined and openclaw_gateway_token -%}
+  {%- set config = config | combine({
+    "gateway": { "auth": { "mode": "token", "token": openclaw_gateway_token } }
+  }, recursive=true) -%}
+{%- endif -%}
+
+{# Telegram — only if bot token is provided #}
+{%- if telegram_bot_token is defined and telegram_bot_token -%}
+  {%- set config = config | combine({
+    "channels": {
       "telegram": {
-        "enabled": true
-      },
-      "signal": {
-        "enabled": true
+        "enabled": true,
+        "dmPolicy": "allowlist",
+        "botToken": telegram_bot_token,
+        "allowFrom": telegram_allow_from | default([]),
+        "groupPolicy": "allowlist",
+        "streaming": "partial"
       }
-    }
-  }
-}
+    },
+    "plugins": { "entries": { "telegram": { "enabled": true } } }
+  }, recursive=true) -%}
+{%- endif -%}
+
+{# Signal — only if account is provided #}
+{%- if signal_account is defined and signal_account -%}
+  {%- set config = config | combine({
+    "channels": {
+      "signal": {
+        "enabled": true,
+        "account": signal_account,
+        "cliPath": "signal-cli",
+        "autoStart": true,
+        "receiveMode": "on-start",
+        "sendReadReceipts": true,
+        "dmPolicy": "allowlist",
+        "allowFrom": signal_allow_from | default([]),
+        "groupPolicy": "allowlist",
+        "chunkMode": "newline"
+      }
+    },
+    "plugins": { "entries": { "signal": { "enabled": true } } }
+  }, recursive=true) -%}
+{%- endif -%}
+
+{{ config | to_nice_json }}

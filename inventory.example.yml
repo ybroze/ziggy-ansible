@@ -17,9 +17,9 @@ all:
     # agent_name: ziggy
 
     # Extensions
-    caddy_domain: "{{ agent_domain | default('') }}"
+    # caddy_domain: example.com
     signal_cli_version: "0.13.24"
     java_package: openjdk-21-jre-headless
 
-    # Workspace git — set workspace_git_remote in your secrets file
-    # workspace_git_remote: "git@github.com:you/your-workspace.git"
+    # Workspace git — set workspace_git_origin in your secrets file
+    # workspace_git_origin: "git@github.com:you/your-workspace.git"

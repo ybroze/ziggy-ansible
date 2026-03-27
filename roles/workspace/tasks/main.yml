@@ -1,66 +1,60 @@
 ---
-# Clone, sync, and manage the agent workspace repo
+# Initialize and configure the agent workspace
+
+- name: Create workspace directory
+  ansible.builtin.file:
+    path: "{{ agent_workspace }}"
+    state: directory
+    owner: "{{ agent_user }}"
+    group: "{{ agent_user }}"
+    mode: '0755'
 
 - name: Check if workspace is a git repo
   ansible.builtin.stat:
     path: "{{ agent_workspace }}/.git"
   register: workspace_git
 
-# Path A: Fresh install — clone the repo
-- name: Clone workspace from private repo
-  ansible.builtin.git:
-    repo: "{{ workspace_git_remote }}"
-    dest: "{{ agent_workspace }}"
-    version: "{{ workspace_git_branch | default('master') }}"
-    accept_hostkey: true
-    key_file: "{{ agent_home }}/.ssh/id_ed25519"
+- name: Initialize workspace as git repo
+  ansible.builtin.command:
+    cmd: git init
+    chdir: "{{ agent_workspace }}"
   become: true
   become_user: "{{ agent_user }}"
-  when:
-    - workspace_git_remote is defined
-    - workspace_git_remote | length > 0
-    - not workspace_git.stat.exists
+  when: not workspace_git.stat.exists
 
-# Path B: Existing repo — commit local changes, then pull
-- name: Commit and push local workspace changes
-  ansible.builtin.shell:
-    cmd: |
-      cd "{{ agent_workspace }}"
-      if [ -z "$(git status --porcelain)" ]; then
-        echo "clean"
-        exit 0
-      fi
-      git add -A
-      git commit -m "auto-commit: pre-provision snapshot"
-      if git remote get-url origin >/dev/null 2>&1; then
-        git push
-        echo "pushed"
-      else
-        echo "committed"
-      fi
-    executable: /bin/bash
+- name: Configure git origin
+  ansible.builtin.command:
+    cmd: "git remote add origin {{ workspace_git_origin }}"
+    chdir: "{{ agent_workspace }}"
   become: true
   become_user: "{{ agent_user }}"
-  environment:
-    GIT_SSH_COMMAND: "ssh -i {{ agent_home }}/.ssh/id_ed25519 -o StrictHostKeyChecking=accept-new"
-  register: workspace_commit
-  changed_when: "'pushed' in workspace_commit.stdout or 'committed' in workspace_commit.stdout"
-  when: workspace_git.stat.exists
+  register: git_remote_add
+  changed_when: git_remote_add.rc == 0
+  failed_when:
+    - git_remote_add.rc != 0
+    - "'already exists' not in git_remote_add.stderr"
+  when: workspace_git_origin is defined and workspace_git_origin | length > 0
 
-- name: Pull latest workspace changes
-  ansible.builtin.git:
-    repo: "{{ workspace_git_remote }}"
-    dest: "{{ agent_workspace }}"
-    version: "{{ workspace_git_branch | default('master') }}"
-    update: true
-    accept_hostkey: true
-    key_file: "{{ agent_home }}/.ssh/id_ed25519"
+- name: Update git origin URL
+  ansible.builtin.command:
+    cmd: "git remote set-url origin {{ workspace_git_origin }}"
+    chdir: "{{ agent_workspace }}"
   become: true
   become_user: "{{ agent_user }}"
+  changed_when: false
   when:
-    - workspace_git.stat.exists
-    - workspace_git_remote is defined
-    - workspace_git_remote | length > 0
+    - workspace_git_origin is defined and workspace_git_origin | length > 0
+    - git_remote_add is defined
+    - "'already exists' in (git_remote_add.stderr | default(''))"
+
+- name: Set workspace branch
+  ansible.builtin.command:
+    cmd: "git checkout -B {{ workspace_git_branch | default('master') }}"
+    chdir: "{{ agent_workspace }}"
+  become: true
+  become_user: "{{ agent_user }}"
+  changed_when: false
+  when: workspace_git_origin is defined and workspace_git_origin | length > 0
 
 - name: Ensure workspace memory directory exists
   ansible.builtin.file:
