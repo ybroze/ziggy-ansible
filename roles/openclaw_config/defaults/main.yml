@@ -1,5 +1,5 @@
 ---
-openclaw_port: 18789
+openclaw_port: 3000
 openclaw_model_primary: "anthropic/claude-opus-4-6"
 openclaw_model_fallback: "anthropic/claude-sonnet-4-6"
 openclaw_heartbeat_interval: "5m"
