@@ -6,6 +6,22 @@
 #     --ask-become-pass \
 #     --extra-vars @secrets.yml
 
+- name: Validate required variables
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Verify secrets file was provided
+      ansible.builtin.assert:
+        that:
+          - server_ip is defined
+          - server_ip | length > 0
+          - anthropic_api_key is defined
+          - anthropic_api_key | length > 0
+        fail_msg: >-
+          Missing required variables. Did you pass your secrets file?
+          Usage: ansible-playbook playbooks/agent.yml -i inventory.yml
+          --extra-vars @secrets.yml
+
 - name: Provision agent VM
   hosts: agent_servers
   become: true

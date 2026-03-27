@@ -7,7 +7,7 @@ all:
     agent_servers:
       hosts:
         my-agent:
-          ansible_host: "{{ server_ip }}"
+          ansible_host: "{{ server_ip | default('unset') }}"
           ansible_user: "{{ server_user | default('root') }}"
           ansible_become: true
   vars:
