@@ -59,6 +59,9 @@ vendor/
 git clone --recurse-submodules git@github.com:youruser/agent-ansible.git
 cd agent-ansible
 
+# Install required Ansible collections
+ansible-galaxy collection install -r requirements.yml
+
 # Set up your inventory and secrets
 cp inventory.example.yml inventory.yml   # edit with your server IP
 cp secrets.example.yml secrets.yml       # fill in your keys and credentials
