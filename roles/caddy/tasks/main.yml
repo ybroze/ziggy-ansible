@@ -8,7 +8,6 @@
       - curl
       - gnupg
     state: present
-    update_cache: true
 
 - name: Add Caddy GPG key
   ansible.builtin.shell:
@@ -31,7 +30,6 @@
   ansible.builtin.apt:
     name: caddy
     state: present
-    update_cache: true
 
 - name: Create webroot directory
   ansible.builtin.file:

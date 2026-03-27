@@ -6,24 +6,7 @@
     path: "{{ agent_workspace }}/.git"
   register: workspace_git
 
-- name: Initialize workspace git remote
-  ansible.builtin.shell:
-    cmd: |
-      cd {{ agent_workspace }}
-      if ! git remote get-url origin >/dev/null 2>&1; then
-        git init
-        git remote add origin {{ workspace_git_remote }}
-        echo "initialized"
-      else
-        echo "already configured"
-      fi
-    executable: /bin/bash
-  become: true
-  become_user: "{{ agent_user }}"
-  register: workspace_git_init
-  changed_when: "'initialized' in workspace_git_init.stdout"
-  when: workspace_git_remote is defined
-
+# Path A: Fresh install — clone the repo
 - name: Clone workspace from private repo
   ansible.builtin.git:
     repo: "{{ workspace_git_remote }}"
@@ -33,12 +16,16 @@
     key_file: "{{ agent_home }}/.ssh/id_ed25519"
   become: true
   become_user: "{{ agent_user }}"
-  when: not workspace_git.stat.exists
+  when:
+    - workspace_git_remote is defined
+    - workspace_git_remote | length > 0
+    - not workspace_git.stat.exists
 
+# Path B: Existing repo — commit local changes, then pull
 - name: Commit and push local workspace changes
   ansible.builtin.shell:
     cmd: |
-      cd {{ agent_workspace }}
+      cd "{{ agent_workspace }}"
       if [ -z "$(git status --porcelain)" ]; then
         echo "clean"
         exit 0
@@ -70,7 +57,10 @@
     key_file: "{{ agent_home }}/.ssh/id_ed25519"
   become: true
   become_user: "{{ agent_user }}"
-  when: workspace_git.stat.exists
+  when:
+    - workspace_git.stat.exists
+    - workspace_git_remote is defined
+    - workspace_git_remote | length > 0
 
 - name: Ensure workspace memory directory exists
   ansible.builtin.file:

@@ -56,8 +56,8 @@ vendor/
 
 ```bash
 # Clone with the submodule
-git clone --recurse-submodules git@github.com:ybroze/ziggy-ansible.git
-cd ziggy-ansible
+git clone --recurse-submodules git@github.com:youruser/agent-ansible.git
+cd agent-ansible
 
 # Set up your inventory and secrets
 cp inventory.example.yml inventory.yml   # edit with your server IP
